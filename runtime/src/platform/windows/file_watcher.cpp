@@ -44,7 +44,7 @@ namespace libaetherium::platform {
             while(_is_running) {
                 if(!::ReadDirectoryChangesW(_handle, _event_buffer.data(), _event_buffer.size(), true,
                                             FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME |
-                                                    FILE_NOTIFY_CHANGE_CREATION,
+                                                    FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_SIZE,
                                             nullptr, &_overlapped, _is_running ? watcher_callback : nullptr)) {
                     SPDLOG_INFO("Failed to handle file event in folder {}: {}", _base_path.string(), get_last_error());
                     continue;
@@ -52,6 +52,15 @@ namespace libaetherium::platform {
                 ::SleepEx(100, true);
             }
         }};
+    }
+
+    FileWatcher::FileWatcher(FileWatcher&& other) noexcept :
+            _handle {other._handle},
+            _base_path {std::move(other._base_path)},
+            _file_watcher_thread {std::move(other._file_watcher_thread)},
+            _handle_to_path_map {std::move(other._handle_to_path_map)} {
+        _handle = invalid_file_watcher_handle;
+        _is_running = true;
     }
 
     FileWatcher::~FileWatcher() noexcept {
@@ -65,6 +74,16 @@ namespace libaetherium::platform {
             ::CloseHandle(_handle);
             _handle = invalid_file_watcher_handle;
         }
+    }
+
+    auto FileWatcher::operator=(FileWatcher&& other) noexcept -> FileWatcher& {
+        _handle = other._handle;
+        _base_path = std::move(other._base_path);
+        _file_watcher_thread = std::move(other._file_watcher_thread);
+        _handle_to_path_map = std::move(other._handle_to_path_map);
+        other._handle = invalid_file_watcher_handle;
+        _is_running = true;
+        return *this;
     }
 }// namespace libaetherium::platform
 #endif

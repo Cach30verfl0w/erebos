@@ -22,7 +22,7 @@
 
 namespace libaetherium::platform {
     namespace {
-        auto mask_to_action_string(const auto mask) noexcept -> std::string {
+        auto mask_to_action_string(const kstd::i32 mask) noexcept -> std::string {
             if(is_flag_set<kstd::u32, IN_DELETE_SELF | IN_DELETE, IN_MOVED_FROM>(mask)) {
                 return "delete";
             }
@@ -35,7 +35,7 @@ namespace libaetherium::platform {
         }
     }// namespace
 
-    const auto watch_mask = IN_CREATE | IN_DELETE | IN_DELETE_SELF | IN_MOVED_TO | IN_MOVED_FROM;
+    const auto watch_mask = IN_CREATE | IN_DELETE | IN_DELETE_SELF | IN_MOVED_TO | IN_MOVED_FROM | IN_MODIFY;
 
     FileWatcher::FileWatcher(std::filesystem::path base_path) ://NOLINT
             _base_path {std::move(base_path)},
@@ -49,7 +49,7 @@ namespace libaetherium::platform {
             throw std::runtime_error {fmt::format("Unable to create file watcher: {}", get_last_error())};
         }
 
-        if (::fcntl(_handle, F_SETFL, ::fcntl(_handle, F_GETFL, 0) | O_NONBLOCK) < 0) {
+        if(::fcntl(_handle, F_SETFL, ::fcntl(_handle, F_GETFL, 0) | O_NONBLOCK) < 0) {
             throw std::runtime_error {fmt::format("Unable to make inotify non-blocking: {}", get_last_error())};
         }
 
@@ -107,6 +107,15 @@ namespace libaetherium::platform {
         }};
     }
 
+    FileWatcher::FileWatcher(FileWatcher&& other) noexcept :
+            _handle {other._handle},
+            _base_path {std::move(other._base_path)},
+            _file_watcher_thread {std::move(other._file_watcher_thread)},
+            _handle_to_path_map {std::move(other._handle_to_path_map)} {
+        _handle = invalid_file_watcher_handle;
+        _is_running = true;
+    }
+
     FileWatcher::~FileWatcher() noexcept {
         if(_handle != invalid_file_watcher_handle) {
             ::close(_handle);
@@ -114,6 +123,16 @@ namespace libaetherium::platform {
             _handle = invalid_file_watcher_handle;
             _file_watcher_thread.join();
         }
+    }
+
+    auto FileWatcher::operator=(FileWatcher&& other) noexcept -> FileWatcher& {
+        _handle = other._handle;
+        _base_path = std::move(other._base_path);
+        _file_watcher_thread = std::move(other._file_watcher_thread);
+        _handle_to_path_map = std::move(other._handle_to_path_map);
+        other._handle = invalid_file_watcher_handle;
+        _is_running = true;
+        return *this;
     }
 }// namespace libaetherium::platform
 #endif

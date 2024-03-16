@@ -21,14 +21,14 @@
 #include "libaetherium/platform/platform.hpp"
 #include "libaetherium/utils.hpp"
 #include <filesystem>
+#include <kstd/bitflags.hpp>
 #include <kstd/types.hpp>
 #include <spdlog/spdlog.h>
 #include <unordered_map>
 
-#ifdef PLATFORM_WINDOWS
-#else
-#include <sys/inotify.h>
+#ifndef PLATFORM_WINDOWS
 #include <signal.h>
+#include <sys/inotify.h>
 #endif
 
 namespace libaetherium::platform {
@@ -45,8 +45,10 @@ namespace libaetherium::platform {
 #endif
 
     public:
-        explicit FileWatcher(std::filesystem::path base_path);
+        FileWatcher(std::filesystem::path base_path);
+        FileWatcher(FileWatcher&& other) noexcept;
         ~FileWatcher() noexcept;
-        KSTD_NO_MOVE_COPY(FileWatcher, FileWatcher); // TODO: Allow move
+        KSTD_NO_COPY(FileWatcher, FileWatcher);
+        auto operator=(FileWatcher&& other) noexcept -> FileWatcher&;
     };
 }// namespace libaetherium::platform
