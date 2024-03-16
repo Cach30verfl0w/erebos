@@ -33,15 +33,15 @@ namespace libaetherium::platform {
          */
         [[nodiscard]] constexpr auto to_access(const AccessMode mode) noexcept -> DWORD {
             DWORD flags = 0;
-            if(are_access_set<AccessMode, AccessMode::WRITE>(mode)) {
+            if(are_flags_set<AccessMode, AccessMode::WRITE>(mode)) {
                 flags |= GENERIC_WRITE;
             }
 
-            if(are_access_set<AccessMode, AccessMode::READ>(mode)) {
+            if(are_flags_set<AccessMode, AccessMode::READ>(mode)) {
                 flags |= GENERIC_READ;
             }
 
-            if(are_access_set<AccessMode, AccessMode::READ>(mode)) {
+            if(are_flags_set<AccessMode, AccessMode::READ>(mode)) {
                 flags |= GENERIC_EXECUTE;
             }
 
@@ -136,19 +136,19 @@ namespace libaetherium::platform {
         }
 
         int flags = 0;
-        if(are_access_set<AccessMode, AccessMode::READ, AccessMode::WRITE, AccessMode::EXECUTE>(_access)) {
+        if(are_flags_set<AccessMode, AccessMode::READ, AccessMode::WRITE, AccessMode::EXECUTE>(_access)) {
             flags = PAGE_EXECUTE_READWRITE;
         }
-        else if(are_access_set<AccessMode, AccessMode::READ, AccessMode::EXECUTE>(_access)) {
+        else if(are_flags_set<AccessMode, AccessMode::READ, AccessMode::EXECUTE>(_access)) {
             flags = PAGE_EXECUTE_READ;
         }
-        else if(are_access_set<AccessMode, AccessMode::READ, AccessMode::WRITE>(_access)) {
+        else if(are_flags_set<AccessMode, AccessMode::READ, AccessMode::WRITE>(_access)) {
             flags = PAGE_READWRITE;
         }
-        else if(are_access_set<AccessMode, AccessMode::EXECUTE>(_access)) {
+        else if(are_flags_set<AccessMode, AccessMode::EXECUTE>(_access)) {
             flags = PAGE_EXECUTE;
         }
-        else if(are_access_set<AccessMode, AccessMode::READ>(_access)) {
+        else if(are_flags_set<AccessMode, AccessMode::READ>(_access)) {
             flags = PAGE_READONLY;
         }
         else {
@@ -157,23 +157,23 @@ namespace libaetherium::platform {
         }
 
         // Create file mapping
-        const auto file_mapping_handle = ::CreateFileMapping(_file_handle, nullptr, flags, 0, 0, nullptr);
+        const auto file_mapping_handle = ::CreateFileMapping(_handle, nullptr, flags, 0, 0, nullptr);
         if(file_mapping_handle == nullptr) {
             return kstd::Error {fmt::format("Unable to map the file into the memory: {}", platform::get_last_error())};
         }
 
         // Create desired access
         int desired_access = 0;
-        if(are_access_set<AccessMode, AccessMode::EXECUTE>(_access)) {
+        if(are_flags_set<AccessMode, AccessMode::EXECUTE>(_access)) {
             desired_access = FILE_MAP_EXECUTE;
         }
 
-        if(are_access_set<AccessMode, AccessMode::WRITE>(_access)) {
+        if(are_flags_set<AccessMode, AccessMode::WRITE>(_access)) {
             desired_access = FILE_MAP_WRITE;
         }
 
 
-        if(are_access_set<AccessMode, AccessMode::READ>(_access)) {
+        if(are_flags_set<AccessMode, AccessMode::READ>(_access)) {
             desired_access = FILE_MAP_READ;
         }
 
@@ -184,7 +184,7 @@ namespace libaetherium::platform {
             return kstd::Error {fmt::format("{}", platform::get_last_error())};
         }
 
-        return {{static_cast<u8*>(base_ptr), file_mapping_handle, file_size}};
+        return {{static_cast<kstd::u8*>(base_ptr), file_mapping_handle, file_size}};
     }
 
     auto File::get_file_size() const noexcept -> kstd::Result<kstd::usize> {

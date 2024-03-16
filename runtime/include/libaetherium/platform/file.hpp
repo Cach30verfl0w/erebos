@@ -25,7 +25,7 @@
 #include <kstd/types.hpp>
 #include <libaetherium/utils.hpp>
 
-#ifdef PLATFORM_LINUX
+#ifdef PLATFORM_UNIX
 #include <fcntl.h>
 #include <sys/mman.h>
 #endif
