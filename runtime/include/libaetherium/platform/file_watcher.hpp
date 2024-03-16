@@ -14,43 +14,39 @@
 
 /**
  * @author Cedric Hammes
- * @since  15/03/2024
+ * @since  16/03/2024
  */
 
 #pragma once
-#include <cstring>
-#include <fmt/format.h>
+#include "libaetherium/platform/platform.hpp"
+#include "libaetherium/utils.hpp"
+#include <filesystem>
 #include <kstd/types.hpp>
-#include <string>
+#include <spdlog/spdlog.h>
+#include <unordered_map>
 
 #ifdef PLATFORM_WINDOWS
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#include <kstd/utils.hpp>
 #else
-#include <dlfcn.h>
-#include <unistd.h>
+#include <sys/inotify.h>
+#include <signal.h>
 #endif
 
 namespace libaetherium::platform {
+    class FileWatcher {
+        FileWatcherHandle _handle;
+        std::filesystem::path _base_path;
+        std::thread _file_watcher_thread;
+        kstd::atomic_bool _is_running;
 #ifdef PLATFORM_WINDOWS
-    using ModuleHandle = HMODULE;
-    using FileHandle = HANDLE;
-    using FileWatcherHandle = HANDLE;
-
-    static inline const FileHandle invalid_file_handle = nullptr;
-    static inline const FileHandle invalid_file_watcher_handle = INVALID_HANDLE_VALUE;
+        ::OVERLAPPED _overlapped;
+        std::array<kstd::u8, 32 * 1024> _event_buffer;
 #else
-    using ModuleHandle = void*;
-    using FileHandle = int;
-    using FileWatcherHandle = int;
-
-    static inline const FileHandle invalid_file_handle = -1;
-    static inline const FileHandle invalid_file_watcher_handle = -1;
+        std::unordered_map<FileHandle, std::filesystem::path> _handle_to_path_map;
 #endif
 
-    static inline ModuleHandle invalid_module_handle = nullptr;
-
-    [[nodiscard]] auto get_last_error() noexcept -> std::string;
+    public:
+        explicit FileWatcher(std::filesystem::path base_path);
+        ~FileWatcher() noexcept;
+        KSTD_NO_MOVE_COPY(FileWatcher, FileWatcher); // TODO: Allow move
+    };
 }// namespace libaetherium::platform

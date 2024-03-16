@@ -33,7 +33,7 @@
 namespace libaetherium::platform {
     KSTD_BITFLAGS(uint8_t, AccessMode, READ = 0b001, WRITE = 0b010, EXECUTE = 0b100)
 
-    class FileMapping {
+    class FileMapping final {
 #ifdef PLATFORM_WINDOWS
         HANDLE _memory_map_handle;
 #endif

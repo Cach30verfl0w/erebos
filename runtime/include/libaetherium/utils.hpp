@@ -32,6 +32,11 @@ namespace libaetherium {
         return (value & flags) == flags;
     }
 
+    template<typename T, T... FLAGS>
+    [[nodiscard]] constexpr auto is_flag_set(T value) noexcept -> bool {
+        return (value & (FLAGS | ...)) != 0;
+    }
+
     /**
      * This functions converts the specified vulkan error code into a human-readable string-representation of the
      * error.

@@ -18,10 +18,12 @@
  */
 
 #include <cxxopts.hpp>
+#include <libaetherium/platform/file_watcher.hpp>
 #include <libaetherium/vulkan/context.hpp>
 #include <libaetherium/vulkan/device.hpp>
 #include <libaetherium/window.hpp>
 #include <spdlog/spdlog.h>
+#include <kstd/safe_alloc.hpp>
 
 auto main(int argc, char* argv[]) -> int {
     cxxopts::Options options {"aetherium-editor"};
@@ -39,17 +41,29 @@ auto main(int argc, char* argv[]) -> int {
         return 0;
     }
 
+    const auto watcher = libaetherium::platform::FileWatcher {"../"};
+
     // Create window, vulkan context and device
-    const auto window = libaetherium::Window {"Aetherium Editor"};
-    const auto vulkan_context = libaetherium::vulkan::VulkanContext {window};
-    const auto device = libaetherium::vulkan::find_device(vulkan_context);
+    const auto window = kstd::try_construct<libaetherium::Window>("Aetherium Editor");
+    if (!window) {
+        SPDLOG_ERROR("{}", window.get_error());
+        return -1;
+    }
+
+    const auto vulkan_context = kstd::try_construct<libaetherium::vulkan::VulkanContext>(*window);
+    if (!vulkan_context) {
+        SPDLOG_ERROR("{}", vulkan_context.get_error());
+        return -1;
+    }
+
+    const auto device = libaetherium::vulkan::find_device(*vulkan_context);
     if(device.is_error()) {
         SPDLOG_ERROR("{}", device.get_error());
         return -1;
     }
 
     SPDLOG_INFO("Entering window event loop");
-    if(const auto result = window.run_loop(); result.is_error()) {
+    if(const auto result = window->run_loop(); result.is_error()) {
         SPDLOG_ERROR("{}", result.get_error());
         return -1;
     }
