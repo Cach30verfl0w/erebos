@@ -1,7 +1,6 @@
 
 # Aetherium Engine
-Aetherium is a Vulkan and SQL2-based 3D Game Engine, written in C++ for my modern-day   
-strategy game and educational purposes. Mainly this project is made to improve my knowledge about C++, CMake and the Vulkan API.
+Aetherium is a Vulkan and SQL2-based 3D Game Engine, written in C++ for my modern-day strategy game and educational purposes. Mainly this project is made to improve my knowledge about C++, CMake and the Vulkan API.
 
 ## Dependencies/Credits
 This projects contains a few dependencies to work. Below this text is an enumeration of all dependencies.  
