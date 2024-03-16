@@ -1,0 +1,11 @@
+name: Build and Test
+on:
+  push:
+
+jobs:
+  editor-cpp-20-debug:
+    name: Editor / C++ 20 (Debug)
+    uses: cach30verfl0w/aetherium/.github/workflows/cpp.yml@main
+    with:
+      cpp_std_version: 20
+      target: aetherium-editor
