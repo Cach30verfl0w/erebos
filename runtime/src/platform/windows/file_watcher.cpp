@@ -58,7 +58,8 @@ namespace libaetherium::platform {
             _handle {other._handle},
             _base_path {std::move(other._base_path)},
             _file_watcher_thread {std::move(other._file_watcher_thread)},
-            _handle_to_path_map {std::move(other._handle_to_path_map)} {
+            _overlapped {std::move(other._overlapped)},
+            _event_buffer {std::move(other._event_buffer)} {
         _handle = invalid_file_watcher_handle;
         _is_running = true;
     }
@@ -80,7 +81,8 @@ namespace libaetherium::platform {
         _handle = other._handle;
         _base_path = std::move(other._base_path);
         _file_watcher_thread = std::move(other._file_watcher_thread);
-        _handle_to_path_map = std::move(other._handle_to_path_map);
+        _overlapped = std::move(other._overlapped);
+        _event_buffer = std::move(_event_buffer);
         other._handle = invalid_file_watcher_handle;
         _is_running = true;
         return *this;
