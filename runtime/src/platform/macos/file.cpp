@@ -167,7 +167,7 @@ namespace libaetherium::platform {
         }
 
         // Pointer to mapped memory section
-        auto* ptr = MMAP(nullptr, *file_size, flags, MAP_SHARED, _handle, 0);
+        auto* ptr = ::map(nullptr, *file_size, flags, MAP_SHARED, _handle, 0);
         if(ptr == MAP_FAILED) {
             return kstd::Error {fmt::format("Unable to map file {} into memory: {}", _path.string(), get_last_error())};
         }

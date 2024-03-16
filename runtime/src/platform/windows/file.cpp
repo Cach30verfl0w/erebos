@@ -67,7 +67,7 @@ namespace libaetherium::platform {
     FileMapping::FileMapping(platform::FileMapping&& other) noexcept ://NOLINT
             _pointer {other._pointer},
             _size {other._size},
-            _memory_map_handle {other.memory_map_handle} {
+            _memory_map_handle {other._memory_map_handle} {
         other._pointer = nullptr;
         other._memory_map_handle = INVALID_HANDLE_VALUE;
     }
