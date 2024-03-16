@@ -12,6 +12,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+/**
+ * @author Cedric Hammes
+ * @since  14/03/2024
+ */
+
 #pragma once
 #include "libaetherium/utils.hpp"
 #include "libaetherium/window.hpp"

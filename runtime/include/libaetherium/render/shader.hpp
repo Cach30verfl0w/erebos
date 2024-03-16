@@ -17,6 +17,8 @@
  * @since  15/03/2024
  */
 
+#pragma once
+
 namespace libaetherium::render {
     class Shader final {
 

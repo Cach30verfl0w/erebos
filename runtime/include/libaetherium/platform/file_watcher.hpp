@@ -45,7 +45,7 @@ namespace libaetherium::platform {
 #endif
 
     public:
-        FileWatcher(std::filesystem::path base_path);
+        explicit FileWatcher(std::filesystem::path base_path);
         FileWatcher(FileWatcher&& other) noexcept;
         ~FileWatcher() noexcept;
         KSTD_NO_COPY(FileWatcher, FileWatcher);
