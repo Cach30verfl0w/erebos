@@ -33,21 +33,62 @@ namespace libaetherium::platform {
          */
         [[nodiscard]] constexpr auto to_access(const AccessMode mode) noexcept -> DWORD {
             DWORD flags = 0;
-            if(are_flags_set<AccessMode, AccessMode::WRITE>(mode)) {
+            if(are_access_set<AccessMode, AccessMode::WRITE>(mode)) {
                 flags |= GENERIC_WRITE;
             }
 
-            if(are_flags_set<AccessMode, AccessMode::READ>(mode)) {
+            if(are_access_set<AccessMode, AccessMode::READ>(mode)) {
                 flags |= GENERIC_READ;
             }
 
-            if(are_flags_set<AccessMode, AccessMode::READ>(mode)) {
+            if(are_access_set<AccessMode, AccessMode::READ>(mode)) {
                 flags |= GENERIC_EXECUTE;
             }
 
             return flags;
         }
     }// namespace
+
+    /**
+     * This constructor fills this class with the pointer to the memory and the size of the
+     * memory.
+     *
+     * @param pointer The pointer to the memory
+     * @param size    The size of the memory
+     * @author        Cedric Hammes
+     * @since         16/03/2024
+     */
+    FileMapping::FileMapping(kstd::u8* file_ptr, HANDLE memory_map_handle, kstd::usize size) noexcept ://NOLINT
+            _pointer {file_ptr},
+            _size {size},
+            _memory_map_handle {memory_map_handle} {
+    }
+
+    FileMapping::FileMapping(platform::FileMapping&& other) noexcept ://NOLINT
+            _pointer {other._pointer},
+            _size {other._size},
+            _memory_map_handle {other.memory_map_handle} {
+        other._pointer = nullptr;
+        other._memory_map_handle = INVALID_HANDLE_VALUE;
+    }
+
+    FileMapping::~FileMapping() noexcept {
+        if(_pointer != nullptr) {
+            ::UnmapViewOfFile(_pointer);
+            ::CloseHandle(_memory_map_handle);
+            _memory_map_handle = INVALID_HANDLE_VALUE;
+            _pointer = nullptr;
+        }
+    }
+
+    auto FileMapping::operator=(platform::FileMapping&& other) noexcept -> FileMapping& {
+        _memory_map_handle = other._memory_map_handle;
+        _pointer = other._pointer;
+        other._memory_map_handle = INVALID_HANDLE_VALUE;
+        other._pointer = nullptr;
+        _size = other._size;
+        return *this;
+    }
 
     /**
      * This constructor opens the specified path into a file handle. If that handle is invalid, this function
@@ -86,6 +127,64 @@ namespace libaetherium::platform {
             ::CloseHandle(_handle);
             _handle = invalid_file_handle;
         }
+    }
+
+    auto File::map_into_memory() const noexcept -> kstd::Result<FileMapping> {
+        const auto file_size = get_file_size();
+        if(file_size.is_error()) {
+            return kstd::Error {file_size.get_error()};
+        }
+
+        int flags = 0;
+        if(are_access_set<AccessMode, AccessMode::READ, AccessMode::WRITE, AccessMode::EXECUTE>(_access)) {
+            flags = PAGE_EXECUTE_READWRITE;
+        }
+        else if(are_access_set<AccessMode, AccessMode::READ, AccessMode::EXECUTE>(_access)) {
+            flags = PAGE_EXECUTE_READ;
+        }
+        else if(are_access_set<AccessMode, AccessMode::READ, AccessMode::WRITE>(_access)) {
+            flags = PAGE_READWRITE;
+        }
+        else if(are_access_set<AccessMode, AccessMode::EXECUTE>(_access)) {
+            flags = PAGE_EXECUTE;
+        }
+        else if(are_access_set<AccessMode, AccessMode::READ>(_access)) {
+            flags = PAGE_READONLY;
+        }
+        else {
+            using namespace std::string_literals;
+            return kstd::Error {"Unable to map the file into the memory: Illegal flags"s};
+        }
+
+        // Create file mapping
+        const auto file_mapping_handle = ::CreateFileMapping(_file_handle, nullptr, flags, 0, 0, nullptr);
+        if(file_mapping_handle == nullptr) {
+            return kstd::Error {fmt::format("Unable to map the file into the memory: {}", platform::get_last_error())};
+        }
+
+        // Create desired access
+        int desired_access = 0;
+        if(are_access_set<AccessMode, AccessMode::EXECUTE>(_access)) {
+            desired_access = FILE_MAP_EXECUTE;
+        }
+
+        if(are_access_set<AccessMode, AccessMode::WRITE>(_access)) {
+            desired_access = FILE_MAP_WRITE;
+        }
+
+
+        if(are_access_set<AccessMode, AccessMode::READ>(_access)) {
+            desired_access = FILE_MAP_READ;
+        }
+
+        // Map view of file and return
+        const auto base_ptr = ::MapViewOfFile(file_mapping_handle, desired_access, 0, 0, 0);
+        if(base_ptr == nullptr) {
+            CloseHandle(file_mapping_handle);
+            return kstd::Error {fmt::format("{}", platform::get_last_error())};
+        }
+
+        return {{static_cast<u8*>(base_ptr), file_mapping_handle, file_size}};
     }
 
     auto File::get_file_size() const noexcept -> kstd::Result<kstd::usize> {

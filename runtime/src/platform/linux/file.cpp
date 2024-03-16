@@ -22,8 +22,10 @@
 
 #ifdef CPU_64_BIT
 #define OPEN ::open64
+#define MMAP ::mmap64
 #else
 #define OPEN ::open
+#define MMAP ::mmap
 #endif
 
 namespace libaetherium::platform {
@@ -81,6 +83,40 @@ namespace libaetherium::platform {
     }// namespace
 
     /**
+     * This constructor fills this class with the pointer to the memory and the size of the
+     * memory.
+     *
+     * @param pointer The pointer to the memory
+     * @param size    The size of the memory
+     * @author        Cedric Hammes
+     * @since         16/03/2024
+     */
+    FileMapping::FileMapping(kstd::u8* file_ptr, kstd::usize size) noexcept ://NOLINT
+            _pointer {file_ptr},
+            _size {size} {
+    }
+
+    FileMapping::FileMapping(platform::FileMapping&& other) noexcept ://NOLINT
+            _pointer {other._pointer},
+            _size {other._size} {
+        other._pointer = nullptr;
+    }
+
+    FileMapping::~FileMapping() noexcept {
+        if(_pointer != nullptr) {
+            ::munmap(_pointer, _size);
+            _pointer = nullptr;
+        }
+    }
+
+    auto FileMapping::operator=(platform::FileMapping&& other) noexcept -> FileMapping& {
+        _pointer = other._pointer;
+        other._pointer = nullptr;
+        _size = other._size;
+        return *this;
+    }
+
+    /**
      * This constructor opens the specified path into a file handle. If that handle is invalid, this function
      * throws a runtime error.
      *
@@ -92,8 +128,8 @@ namespace libaetherium::platform {
             _path {std::move(path)},
             _access {access_mode} {
         const auto exists = std::filesystem::exists(_path);
-        if (!exists && _path.has_parent_path()) {
-            if (const auto parent_path = _path.parent_path(); std::filesystem::exists(parent_path)) {
+        if(!exists && _path.has_parent_path()) {
+            if(const auto parent_path = _path.parent_path(); std::filesystem::exists(parent_path)) {
                 std::filesystem::create_directories(parent_path);
             }
         }
@@ -116,6 +152,35 @@ namespace libaetherium::platform {
             ::close(_handle);
             _handle = invalid_file_handle;
         }
+    }
+
+    auto File::map_into_memory() const noexcept -> kstd::Result<FileMapping> {
+        const auto file_size = get_file_size();
+        if(file_size.is_error()) {
+            return kstd::Error {file_size.get_error()};
+        }
+
+        // Generate flags for memory mapping
+        int flags = 0;
+        if(are_flags_set<AccessMode, AccessMode::READ>(_access)) {
+            flags |= PROT_READ;
+        }
+
+        if(are_flags_set<AccessMode, AccessMode::WRITE>(_access)) {
+            flags |= PROT_WRITE;
+        }
+
+        if(are_flags_set<AccessMode, AccessMode::EXECUTE>(_access)) {
+            flags |= PROT_EXEC;
+        }
+
+        // Pointer to mapped memory section
+        auto* ptr = MMAP(nullptr, *file_size, flags, MAP_SHARED, _handle, 0);
+        if(ptr == MAP_FAILED) {
+            return kstd::Error {fmt::format("Unable to map file {} into memory: {}", _path.string(), get_last_error())};
+        }
+
+        return {{static_cast<kstd::u8*>(ptr), *file_size}};
     }
 
     auto File::get_file_size() const noexcept -> kstd::Result<kstd::usize> {
