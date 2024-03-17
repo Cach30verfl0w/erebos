@@ -56,7 +56,7 @@ namespace libaetherium::resource {
             }
 
             // Return resource ptr when found
-            const auto cached_resource = _loaded_resources.find(filesystem_path);
+            const auto cached_resource = _loaded_resources.find(filesystem_path.string());
             if(cached_resource != _loaded_resources.end()) {
                 return {static_cast<RESOURCE&>(*cached_resource->second)};
             }
@@ -74,7 +74,7 @@ namespace libaetherium::resource {
                 return kstd::Error {mapping.get_error()};
             }
             resource->reload(**mapping, mapping->get_size());
-            _loaded_resources.insert(std::pair(filesystem_path, resource));
+            _loaded_resources.insert(std::pair(filesystem_path.string(), resource));
             return {*resource};
         }
     };

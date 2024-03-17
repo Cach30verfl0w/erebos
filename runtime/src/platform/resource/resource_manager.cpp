@@ -34,14 +34,14 @@ namespace libaetherium::resource {
         _file_watcher.handle_event_queue([&](const platform::FileEvent& event) noexcept -> kstd::Result<void> {
             switch(event.type) {
                 case platform::DELETED:
-                    if(_loaded_resources.find(event.file) == _loaded_resources.cend()) {
+                    if(_loaded_resources.find(event.file.string()) == _loaded_resources.cend()) {
                         break;
                     }
 
-                    _loaded_resources.erase(event.file);
+                    _loaded_resources.erase(event.file.string());
                     break;
                 case platform::WRITTEN: {
-                    const auto resource = _loaded_resources.find(event.file);
+                    const auto resource = _loaded_resources.find(event.file.string());
                     if(resource == _loaded_resources.cend()) {
                         break;
                     }
