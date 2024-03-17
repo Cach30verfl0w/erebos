@@ -15,6 +15,7 @@
 /**
  * @author Alexander Hinze
  * @since  06/05/2023
+ * @see    https://github.com/karmakrafts/kstd-platform/blob/master/src/linux/dynamic_lib.cpp
  */
 
 #ifdef PLATFORM_LINUX

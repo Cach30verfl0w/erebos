@@ -18,12 +18,23 @@
  */
 
 #include <cxxopts.hpp>
+#include <kstd/safe_alloc.hpp>
 #include <libaetherium/platform/file_watcher.hpp>
+#include <libaetherium/resource/resource_manager.hpp>
 #include <libaetherium/vulkan/context.hpp>
 #include <libaetherium/vulkan/device.hpp>
 #include <libaetherium/window.hpp>
 #include <spdlog/spdlog.h>
-#include <kstd/safe_alloc.hpp>
+
+class TestResource final : public libaetherium::resource::Resource {
+    std::string value {};
+
+public:
+    auto reload(const void *data, kstd::usize size) noexcept -> kstd::Result<void> override {
+        printf("%zu\n", size);
+        return {};
+    }
+};
 
 auto main(int argc, char* argv[]) -> int {
     cxxopts::Options options {"aetherium-editor"};
@@ -41,17 +52,23 @@ auto main(int argc, char* argv[]) -> int {
         return 0;
     }
 
-    const auto watcher = libaetherium::platform::FileWatcher {"../"};
+    auto watcher = libaetherium::platform::FileWatcher {"../"};
+    auto resource_manager = libaetherium::resource::ResourceManager {"../"};
+    const auto resource = resource_manager.get_resource<TestResource>("editor/CMakeLists.txt");
+    if (!resource) {
+        SPDLOG_ERROR("{}", resource.get_error());
+        return -1;
+    }
 
     // Create window, vulkan context and device
     const auto window = kstd::try_construct<libaetherium::Window>("Aetherium Editor");
-    if (!window) {
+    if(!window) {
         SPDLOG_ERROR("{}", window.get_error());
         return -1;
     }
 
     const auto vulkan_context = kstd::try_construct<libaetherium::vulkan::VulkanContext>(*window);
-    if (!vulkan_context) {
+    if(!vulkan_context) {
         SPDLOG_ERROR("{}", vulkan_context.get_error());
         return -1;
     }

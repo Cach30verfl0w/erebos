@@ -19,6 +19,7 @@
 
 #pragma once
 #include "libaetherium/platform/platform.hpp"
+#include "libaetherium/platform/file.hpp"
 #include "libaetherium/utils.hpp"
 #include <filesystem>
 #include <kstd/bitflags.hpp>

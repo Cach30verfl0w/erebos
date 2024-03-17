@@ -15,6 +15,7 @@
 /**
  * @author Alexander Hinze
  * @since  06/05/2023
+ * @see    https://github.com/karmakrafts/kstd-platform/blob/master/include/kstd/platform/dynamic_lib.hpp
  */
 
 #pragma once
