@@ -36,7 +36,7 @@ namespace libaetherium::resource {
     class ResourceManager final {
         platform::FileWatcher _file_watcher;
         std::filesystem::path _assets_folder;
-        std::unordered_map<std::filesystem::path, std::shared_ptr<Resource>> _loaded_resources;
+        std::unordered_map<std::string, std::shared_ptr<Resource>> _loaded_resources;
 
     public:
         explicit ResourceManager(const std::filesystem::path& assets_folder);

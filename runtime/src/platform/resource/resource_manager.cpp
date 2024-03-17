@@ -32,9 +32,9 @@ namespace libaetherium::resource {
 
     auto ResourceManager::reload_if_necessary() noexcept -> kstd::Result<void> {
         _file_watcher.handle_event_queue([&](const platform::FileEvent& event) noexcept -> kstd::Result<void> {
-            switch (event.type) {
+            switch(event.type) {
                 case platform::DELETED:
-                    if (_loaded_resources.find(event.file) == _loaded_resources.cend()) {
+                    if(_loaded_resources.find(event.file) == _loaded_resources.cend()) {
                         break;
                     }
 
@@ -42,7 +42,7 @@ namespace libaetherium::resource {
                     break;
                 case platform::WRITTEN: {
                     const auto resource = _loaded_resources.find(event.file);
-                    if (resource == _loaded_resources.cend()) {
+                    if(resource == _loaded_resources.cend()) {
                         break;
                     }
 
@@ -50,12 +50,12 @@ namespace libaetherium::resource {
                     // Fix for multiple reloads: While file attribute changes are happening, the file is locked by
                     // Windows, so the handle is invalid and I can filter that operation. Errors like file not existing
                     // are not possible. I don't really like this solution, but it works.
-                    if (!file) {
+                    if(!file) {
                         break;
                     }
 
                     const auto memory_map = file->map_into_memory();
-                    if (!memory_map) {
+                    if(!memory_map) {
                         SPDLOG_WARN("Fail while reload resources -> {}", memory_map.get_error());
                         break;
                     }
