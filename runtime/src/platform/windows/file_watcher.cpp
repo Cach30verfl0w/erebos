@@ -19,11 +19,40 @@
 
 #ifdef PLATFORM_WINDOWS
 #include "libaetherium/platform/file_watcher.hpp"
+#include <algorithm>
 
 namespace libaetherium::platform {
     namespace {
-        void CALLBACK watcher_callback(DWORD dwErrorCode, DWORD dwNumberOfBytesTransferred, LPOVERLAPPED lpOverlapped) {
-            // TODO: Handle events for update callbacks or other stuff
+        auto mask_to_action_string(const DWORD action) noexcept -> std::string {
+            if(action == FILE_ACTION_MODIFIED) {
+                return "modify";
+            }
+
+            if(action == FILE_ACTION_ADDED) {
+                return "create";
+            }
+
+            if(action == FILE_ACTION_REMOVED) {
+                return "delete";
+            }
+
+            return fmt::format("unknown ({:X})", action);
+        }
+
+        constexpr auto action_to_event_type(const DWORD action) noexcept -> FileEventType {
+            if(action == FILE_ACTION_MODIFIED) {
+                return FileEventType::WRITTEN;
+            }
+
+            if(action == FILE_ACTION_ADDED) {
+                return FileEventType::CREATED;
+            }
+
+            if(action == FILE_ACTION_REMOVED) {
+                return FileEventType::DELETED;
+            }
+
+            return FileEventType::UNKNOWN;
         }
     }// namespace
 
@@ -31,6 +60,8 @@ namespace libaetherium::platform {
             _base_path {std::move(base_path)},
             _overlapped {},
             _is_running {true},
+            _event_queue_mutex {},
+            _event_queue {},
             _event_buffer {} {
         _overlapped.hEvent = ::CreateEvent(nullptr, true, false, nullptr);
         _handle = ::CreateFile(_base_path.string().c_str(), FILE_LIST_DIRECTORY,
@@ -45,10 +76,38 @@ namespace libaetherium::platform {
                 if(!::ReadDirectoryChangesW(_handle, _event_buffer.data(), _event_buffer.size(), true,
                                             FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME |
                                                     FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_SIZE,
-                                            nullptr, &_overlapped, _is_running ? watcher_callback : nullptr)) {
+                                            nullptr, &_overlapped, nullptr)) {
                     SPDLOG_INFO("Failed to handle file event in folder {}: {}", _base_path.string(), get_last_error());
                     continue;
                 }
+
+                const auto status = ::WaitForSingleObject(_overlapped.hEvent, 3000);
+                if(status == WAIT_TIMEOUT) {
+                    continue;
+                }
+
+                if(status != WAIT_OBJECT_0) {
+                    SPDLOG_ERROR("Failed to handle file event in folder {} {}: {}", status, _base_path.string(),
+                                 get_last_error());
+                    continue;
+                }
+
+                size_t offset = 0;
+                FILE_NOTIFY_INFORMATION* notify;
+
+                do {
+                    notify = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(_event_buffer.data() + offset);
+                    std::wstring file_name;
+                    file_name.assign(notify->FileName, notify->FileNameLength / sizeof(WCHAR));
+                    const auto path = _base_path / kstd::utils::to_mbs(file_name);
+
+                    {
+                        const auto lock = std::lock_guard {_event_queue_mutex};
+                        _event_queue.push_back(
+                                FileEvent {action_to_event_type(notify->Action), path});
+                    }
+                    offset += notify->NextEntryOffset;
+                } while(notify->NextEntryOffset > 0);
                 ::SleepEx(100, true);
             }
         }};
@@ -58,8 +117,10 @@ namespace libaetherium::platform {
             _handle {other._handle},
             _base_path {std::move(other._base_path)},
             _file_watcher_thread {std::move(other._file_watcher_thread)},
-            _overlapped {std::move(other._overlapped)},
-            _event_buffer {std::move(other._event_buffer)} {
+            _overlapped {other._overlapped},
+            _event_queue {std::move(other._event_queue)},
+            _event_queue_mutex {},
+            _event_buffer {other._event_buffer} {
         _handle = invalid_file_watcher_handle;
         _is_running = true;
     }
@@ -81,8 +142,9 @@ namespace libaetherium::platform {
         _handle = other._handle;
         _base_path = std::move(other._base_path);
         _file_watcher_thread = std::move(other._file_watcher_thread);
-        _overlapped = std::move(other._overlapped);
-        _event_buffer = std::move(_event_buffer);
+        _event_queue = std::move(other._event_queue);
+        _overlapped = other._overlapped;
+        _event_buffer = other._event_buffer;
         other._handle = invalid_file_watcher_handle;
         _is_running = true;
         return *this;

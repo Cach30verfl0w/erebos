@@ -39,7 +39,7 @@ namespace libaetherium::platform {
     using FileHandle = HANDLE;
     using FileWatcherHandle = HANDLE;
 
-    static inline const FileHandle invalid_file_handle = nullptr;
+    static inline const FileHandle invalid_file_handle = INVALID_HANDLE_VALUE;
     static inline const FileHandle invalid_file_watcher_handle = INVALID_HANDLE_VALUE;
 #else
     using ModuleHandle = void*;

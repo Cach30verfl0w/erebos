@@ -135,7 +135,7 @@ namespace libaetherium::platform {
             return kstd::Error {file_size.get_error()};
         }
 
-        int flags = 0;
+        int flags;
         if(are_flags_set<AccessMode, AccessMode::READ, AccessMode::WRITE, AccessMode::EXECUTE>(_access)) {
             flags = PAGE_EXECUTE_READWRITE;
         }
@@ -184,15 +184,15 @@ namespace libaetherium::platform {
             return kstd::Error {fmt::format("{}", platform::get_last_error())};
         }
 
-        return {{static_cast<kstd::u8*>(base_ptr), file_mapping_handle, file_size}};
+        return {{static_cast<kstd::u8*>(base_ptr), file_mapping_handle, *file_size}};
     }
 
     auto File::get_file_size() const noexcept -> kstd::Result<kstd::usize> {
-        DWORD file_size = 0;
-        if(::GetFileSize(_handle, &file_size) == INVALID_FILE_SIZE) {
+        LARGE_INTEGER file_size {};
+        if(!::GetFileSizeEx(_handle, &file_size)) {
             return kstd::Error {fmt::format("Unable to acquire size of file: {}", platform::get_last_error())};
         }
-        return {file_size};
+        return static_cast<kstd::usize>(file_size.QuadPart);
     }
 
     auto File::operator=(File&& other) noexcept -> File& {

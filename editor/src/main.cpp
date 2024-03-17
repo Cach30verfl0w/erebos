@@ -52,9 +52,8 @@ auto main(int argc, char* argv[]) -> int {
         return 0;
     }
 
-    auto watcher = libaetherium::platform::FileWatcher {"../"};
-    auto resource_manager = libaetherium::resource::ResourceManager {"../"};
-    const auto resource = resource_manager.get_resource<TestResource>("editor/CMakeLists.txt");
+    auto resource_manager = libaetherium::resource::ResourceManager {"../../"};
+    const auto resource = resource_manager.get_resource<TestResource>("aetherium/handle.txt");
     if (!resource) {
         SPDLOG_ERROR("{}", resource.get_error());
         return -1;

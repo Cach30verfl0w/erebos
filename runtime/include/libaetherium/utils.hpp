@@ -32,8 +32,8 @@ namespace libaetherium {
         return (value & flags) == flags;
     }
 
-    template<typename T, T... FLAGS>
-    [[nodiscard]] constexpr auto is_flag_set(T value) noexcept -> bool {
+    template<auto... FLAGS>
+    [[nodiscard]] constexpr auto is_flag_set(auto value) noexcept -> bool {
         return (value & (FLAGS | ...)) != 0;
     }
 
