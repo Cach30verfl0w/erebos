@@ -21,6 +21,7 @@
 #include <kstd/safe_alloc.hpp>
 #include <libaetherium/vulkan/context.hpp>
 #include <libaetherium/vulkan/device.hpp>
+#include <libaetherium/platform/file.hpp>
 #include <libaetherium/window.hpp>
 #include <spdlog/spdlog.h>
 #include <libaetherium/render/dxcompiler.hpp>
@@ -40,6 +41,8 @@ auto main(int argc, char* argv[]) -> int {
         }
         return 0;
     }
+
+    const auto file = libaetherium::platform::File {"../hacker.txt", libaetherium::platform::AccessMode::READ};
 
     // DXC
     const auto compiler = kstd::try_construct<libaetherium::render::DXCompiler>("/usr/lib/dxc/libdxcompiler.so");

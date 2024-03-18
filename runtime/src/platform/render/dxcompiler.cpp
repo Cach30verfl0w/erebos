@@ -18,7 +18,6 @@
  */
 
 #include "libaetherium/render/dxcompiler.hpp"
-#include <iostream>
 
 namespace libaetherium::render {
     DXCompiler::DXCompiler(const std::filesystem::path& path) ://NOLINT
@@ -31,12 +30,12 @@ namespace libaetherium::render {
         // clang-format on
 
         _DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&_dxc_utils));
-        if (!_dxc_utils) {
+        if(!_dxc_utils) {
             throw std::runtime_error {"Unable to initialize DX Compiler: Failed to initialize DXC Utils"};
         }
 
         _DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&_dxc_compiler));
-        if (!_dxc_compiler) {
+        if(!_dxc_compiler) {
             throw std::runtime_error {"Unable to initialize DX Compiler: Failed to initialize DX Compiler itself"};
         }
         SPDLOG_INFO("Successfully initialized DX Compiler");
