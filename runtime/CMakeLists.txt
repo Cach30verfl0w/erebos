@@ -24,6 +24,10 @@ add_dependencies(aetherium SDL2-static)
 target_link_libraries(aetherium-static PUBLIC SDL2-static)
 add_dependencies(aetherium-static SDL2-static)
 
+# Add dxc
+target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
+target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
+
 # Add fmt
 target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/fmt-src/include")
 target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/fmt-src/include")

@@ -19,22 +19,11 @@
 
 #include <cxxopts.hpp>
 #include <kstd/safe_alloc.hpp>
-#include <libaetherium/platform/file_watcher.hpp>
-#include <libaetherium/resource/resource_manager.hpp>
 #include <libaetherium/vulkan/context.hpp>
 #include <libaetherium/vulkan/device.hpp>
 #include <libaetherium/window.hpp>
 #include <spdlog/spdlog.h>
-
-class TestResource final : public libaetherium::resource::Resource {
-    std::string value {};
-
-public:
-    auto reload(const void *data, kstd::usize size) noexcept -> kstd::Result<void> override {
-        printf("%zu\n", size);
-        return {};
-    }
-};
+#include <libaetherium/render/dxcompiler.hpp>
 
 auto main(int argc, char* argv[]) -> int {
     cxxopts::Options options {"aetherium-editor"};
@@ -50,13 +39,6 @@ auto main(int argc, char* argv[]) -> int {
             SPDLOG_INFO("{}", line);
         }
         return 0;
-    }
-
-    auto resource_manager = libaetherium::resource::ResourceManager {"../../"};
-    const auto resource = resource_manager.get_resource<TestResource>("aetherium/handle.txt");
-    if (!resource) {
-        SPDLOG_ERROR("{}", resource.get_error());
-        return -1;
     }
 
     // Create window, vulkan context and device

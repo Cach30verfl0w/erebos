@@ -12,7 +12,8 @@ This projects contains a few dependencies to work. Below this text is an enumera
 | [spdlog](https://github.com/gabime/spdlog) | [Gabi Melman](https://github.com/gabime) | [MIT License](https://github.com/gabime/spdlog?tab=License-1-ov-file#readme)  
 | [fmt](https://github.com/fmtlib/fmt) | [Victor Zverovich](https://github.com/vitaut) | [MIT License](https://github.com/fmtlib/fmt?tab=License-1-ov-file#readme) |
 | [Google Test](https://github.com/google/googletest) | [Google](https://github.com/google) | [BSD 3-Clause License](https://github.com/google/googletest/blob/main/LICENSE) |
-| [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator) | [GPUOpen Libraries & SDKs](https://github.com/GPUOpen-LibrariesAndSDKs) | [MIT License](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator?tab=MIT-1-ov-file)
+| [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator) | [GPUOpen Libraries & SDKs](https://github.com/GPUOpen-LibrariesAndSDKs) | [MIT License](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator?tab=MIT-1-ov-file) |
+| [DirectXShaderCompiler](https://github.com/microsoft/DirectXShaderCompiler) | [Microsoft](https:/github.com/microsoft) | [LLVM Release License](https://github.com/microsoft/DirectXShaderCompiler/blob/main/LICENSE.TXT) |
 
 ## License
 This full project is licensed under [Apache 2.0 License](https://github.com/Cach30verfl0w/aetherium/?tab=Apache-2.0-1-ov-file#readme). Please follow this license and respect my work to this.
