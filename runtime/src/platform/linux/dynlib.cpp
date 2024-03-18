@@ -32,7 +32,7 @@ namespace libaetherium::platform {
 
     LibraryLoader::LibraryLoader(LibraryLoader&& other) noexcept :
             _name {std::move(other._name)},
-            _handle {other._handle} {
+            _handle {std::move(other._handle)} {
         other._handle = invalid_module_handle;
     }
 

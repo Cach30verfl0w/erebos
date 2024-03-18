@@ -31,6 +31,11 @@ namespace libaetherium::platform {
         ModuleHandle _handle;
 
     public:
+        LibraryLoader() ://NOLINT
+                _name {},
+                _handle {invalid_module_handle} {
+        }
+
         /**
          * This constructor opens the specified library and saves a handle. When that handle is invalid, we throw a
          * runtime error.
