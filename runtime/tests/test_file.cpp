@@ -21,7 +21,9 @@
 #include <gtest/gtest.h>
 
 TEST(libaetherium_platform_File, test_file_create) {
-    const auto file = libaetherium::platform::File {"file.txt", libaetherium::platform::AccessMode::READ};
-    ASSERT_TRUE(std::filesystem::exists("file.txt"));
+    {
+        const auto file = libaetherium::platform::File {"file.txt", libaetherium::platform::AccessMode::READ};
+        ASSERT_TRUE(std::filesystem::exists("file.txt"));
+    }
     std::filesystem::remove("file.txt");
 }
