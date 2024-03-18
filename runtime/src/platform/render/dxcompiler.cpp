@@ -22,7 +22,7 @@
 
 namespace libaetherium::render {
     DXCompiler::DXCompiler(const std::filesystem::path& path) ://NOLINT
-            _library_loader {platform::LibraryLoader(path)},
+            _library_loader {platform::LibraryLoader {path.string()}},
             _dxc_compiler {},
             _dxc_utils {} {
         // clang-format off
