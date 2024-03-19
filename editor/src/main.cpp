@@ -19,10 +19,11 @@
 
 #include <cxxopts.hpp>
 #include <kstd/safe_alloc.hpp>
+#include <libaetherium/resource/resource_manager.hpp>
 #include <libaetherium/vulkan/context.hpp>
 #include <libaetherium/vulkan/device.hpp>
-#include <libaetherium/platform/file.hpp>
 #include <libaetherium/window.hpp>
+#include <libaetherium/render/shader.hpp>
 #include <spdlog/spdlog.h>
 #include <libaetherium/render/dxcompiler.hpp>
 
@@ -58,6 +59,12 @@ auto main(int argc, char* argv[]) -> int {
     const auto device = libaetherium::vulkan::find_device(*vulkan_context);
     if(device.is_error()) {
         SPDLOG_ERROR("{}", device.get_error());
+        return -1;
+    }
+
+    auto compiler = kstd::try_construct<libaetherium::render::DXCompiler>("/usr/lib/dxc/libdxcompiler.so");
+    if (!compiler) {
+        SPDLOG_ERROR("{}", compiler.get_error());
         return -1;
     }
 

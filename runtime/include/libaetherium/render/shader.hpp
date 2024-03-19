@@ -18,9 +18,23 @@
  */
 
 #pragma once
+#include "libaetherium/render/dxcompiler.hpp"
+#include "libaetherium/resource/resource_manager.hpp"
+#include "libaetherium/vulkan/device.hpp"
+#include <kstd/option.hpp>
 
 namespace libaetherium::render {
-    class Shader final {
+    class Shader final : public resource::Resource {
+        const vulkan::Device* _device;
+        const DXCompiler* _shader_compiler;
+        kstd::Option<VkShaderModule> _shader;
 
+    public:
+        Shader(const vulkan::Device& device, const DXCompiler& shader_compiler) noexcept;
+        ~Shader() noexcept;
+        KSTD_DEFAULT_MOVE(Shader, Shader);
+        KSTD_NO_COPY(Shader, Shader);
+
+        [[nodiscard]] auto reload(const kstd::u8* data, kstd::usize size) noexcept -> kstd::Result<void> override;
     };
-}
+}// namespace libaetherium::render

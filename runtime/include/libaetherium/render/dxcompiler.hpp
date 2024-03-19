@@ -57,7 +57,7 @@ namespace libaetherium::render {
 
     public:
         explicit DXCompiler(const std::filesystem::path& path);
-        [[nodiscard]] auto compile(const std::string& code, VkShaderStageFlagBits shader_stage) const noexcept
+        [[nodiscard]] auto compile(const std::vector<kstd::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
                 -> kstd::Result<std::vector<uint32_t>>;
     };
 }// namespace libaetherium::render

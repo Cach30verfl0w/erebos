@@ -28,6 +28,17 @@ add_dependencies(aetherium-static SDL2-static)
 target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
 target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
 
+# Add spirv-reflect
+FetchContent_Declare(
+        spirv-reflect
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Reflect
+        GIT_TAG main
+        GIT_PROGRESS true
+)
+FetchContent_Populate(spirv-reflect)
+target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/spirv-reflect-src/include")
+target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/spirv-reflect-src/include")
+
 # Add fmt
 target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/fmt-src/include")
 target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/fmt-src/include")

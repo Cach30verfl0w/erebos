@@ -54,7 +54,7 @@ namespace libaetherium::platform {
          * specified function pointer.
          *
          * @tparam R    The function's return type
-         * @tparam ARGS The function's arguments
+         * @tparam ARGS The function's argument types
          * @param name  The function's name
          * @return      Function pointer or error
          * @author Alexander Hinze

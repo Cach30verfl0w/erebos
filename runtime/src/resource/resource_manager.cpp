@@ -41,6 +41,7 @@ namespace libaetherium::resource {
                     _loaded_resources.erase(event.file.string());
                     break;
                 case platform::WRITTEN: {
+                    SPDLOG_DEBUG("Reloading file '{}'...", event.file.string());
                     const auto resource = _loaded_resources.find(event.file.string());
                     if(resource == _loaded_resources.cend()) {
                         break;
@@ -59,7 +60,12 @@ namespace libaetherium::resource {
                         SPDLOG_WARN("Fail while reload resources -> {}", memory_map.get_error());
                         break;
                     }
-                    resource->second->reload(**memory_map, memory_map->get_size());
+
+                    const auto reload_result = resource->second->reload(**memory_map, memory_map->get_size());
+                    if (!reload_result) {
+                        SPDLOG_ERROR("Fail while reload resources -> {}", reload_result.get_error());
+                        break;
+                    }
                     break;
                 }
                 default: break;

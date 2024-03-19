@@ -28,7 +28,7 @@ namespace libaetherium::resource {
         Resource() noexcept = default;
         virtual ~Resource() noexcept = default;
 
-        virtual auto reload(const void* data, kstd::usize size) noexcept -> kstd::Result<void> {
+        [[nodiscard]] virtual auto reload(const kstd::u8* data, kstd::usize size) noexcept -> kstd::Result<void> {
             return {};
         }
     };
@@ -62,7 +62,12 @@ namespace libaetherium::resource {
             }
 
             // Read resource into memory
-            auto resource = std::make_shared<RESOURCE>(std::forward<ARGS>(args)...);
+            auto resource = kstd::try_to([&]() {
+                return std::make_shared<RESOURCE>(std::forward<ARGS>(args)...);
+            });
+            if(!resource) {
+                return kstd::Error {resource.get_error()};
+            }
 
             auto file = kstd::try_construct<platform::File>(filesystem_path, platform::AccessMode::READ);
             if(!file) {
@@ -73,9 +78,15 @@ namespace libaetherium::resource {
             if(!mapping) {
                 return kstd::Error {mapping.get_error()};
             }
-            resource->reload(**mapping, mapping->get_size());
-            _loaded_resources.insert(std::pair(filesystem_path.string(), resource));
-            return {*resource};
+
+            const auto reload_result = resource.get()->reload(**mapping, mapping->get_size());
+            if(!reload_result) {
+                SPDLOG_ERROR("Unable to reload resource '{}' -> {}", filesystem_path.string(),
+                             reload_result.get_error());
+            }
+
+            _loaded_resources.insert(std::pair(filesystem_path.string(), *resource));
+            return {**resource};
         }
     };
 }// namespace libaetherium::resource

@@ -41,11 +41,11 @@ namespace libaetherium::render {
         SPDLOG_INFO("Successfully initialized DX Compiler");
     }
 
-    auto DXCompiler::compile(const std::string& code, VkShaderStageFlagBits shader_stage) const noexcept
+    auto DXCompiler::compile(const std::vector<kstd::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
             -> kstd::Result<std::vector<std::uint32_t>> {
         using namespace std::string_literals;
 
-        LPCWSTR profile {};
+        LPCWSTR profile;
         if(is_flag_set<VK_SHADER_STAGE_COMPUTE_BIT>(shader_stage)) {
             profile = L"cs_6_8";
         }
@@ -62,7 +62,7 @@ namespace libaetherium::render {
 
         // clang-format off
         std::vector<LPCWSTR> args {
-                {L"-fvk-use-scalar-layout", L"-fspv-target-env=vulkan1.2", L"-spirv", L"-HV", L"2021", L"-T", profile}
+                {L"-fvk-use-scalar-layout", L"-fspv-target-env=vulkan1.3", L"-spirv", L"-HV", L"2021", L"-T", profile}
         };
         // clang-format on
 

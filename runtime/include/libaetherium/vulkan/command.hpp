@@ -139,7 +139,7 @@ namespace libaetherium::vulkan {
             submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submit_info.pCommandBuffers = &raw_command_buffer;
             submit_info.commandBufferCount = 1;
-            vkQueueSubmit(_device->get_graphics_queue(), 1, &submit_info, *submit_fence);
+            vkQueueSubmit(_device->get_graphics_queue(), 1, &submit_info, *submit_fence); // TODO: Error handling
             if(const auto wait_result = submit_fence.wait_for(); wait_result.is_error()) {
                 return wait_result;
             }
