@@ -19,9 +19,11 @@
 
 #pragma once
 #include "libaetherium/platform/dynlib.hpp"
+#include "libaetherium/utils.hpp"
 #include <filesystem>
 #include <kstd/safe_alloc.hpp>
 #include <spdlog/spdlog.h>
+#include <volk.h>
 
 // Include unknown when on Windows
 #ifdef PLATFORM_WINDOWS
@@ -45,11 +47,7 @@ namespace libaetherium::render {
     using DXCPointer = CComPtr<T>;
 #endif
 
-    typedef HRESULT (__stdcall *PFN_DxcCreateInstance)(
-            _In_ REFCLSID   rclsid,
-            _In_ REFIID     riid,
-            _Out_ LPVOID*   ppv
-    );
+    typedef HRESULT(__stdcall* PFN_DxcCreateInstance)(_In_ REFCLSID rclsid, _In_ REFIID riid, _Out_ LPVOID* ppv);
 
     class DXCompiler {
         platform::LibraryLoader _library_loader;
@@ -59,5 +57,7 @@ namespace libaetherium::render {
 
     public:
         explicit DXCompiler(const std::filesystem::path& path);
+        [[nodiscard]] auto compile(const std::string& code, VkShaderStageFlagBits shader_stage) const noexcept
+                -> kstd::Result<std::vector<uint32_t>>;
     };
 }// namespace libaetherium::render

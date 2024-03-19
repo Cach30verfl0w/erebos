@@ -21,6 +21,7 @@
 #include <iostream>
 
 namespace libaetherium::render {
+
     DXCompiler::DXCompiler(const std::filesystem::path& path) ://NOLINT
             _library_loader {platform::LibraryLoader {path.string()}},
             _dxc_compiler {},
@@ -30,55 +31,54 @@ namespace libaetherium::render {
                 .get_or_throw();
         // clang-format on
 
-        _DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&_dxc_utils));
-        if (!_dxc_utils) {
+        if(_DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&_dxc_utils)) != S_OK) {
             throw std::runtime_error {"Unable to initialize DX Compiler: Failed to initialize DXC Utils"};
         }
 
-        _DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&_dxc_compiler));
-        if (!_dxc_compiler) {
+        if(_DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&_dxc_compiler)) != S_OK) {
             throw std::runtime_error {"Unable to initialize DX Compiler: Failed to initialize DX Compiler itself"};
         }
         SPDLOG_INFO("Successfully initialized DX Compiler");
-
-        std::string_view hlsl = R"(
-            [numthreads(8, 8, 8)] void main(uint3 global_i : SV_DispatchThreadID) {
-            }
-        )";
-        DxcBuffer buffer {
-                .Ptr = &*hlsl.begin(),
-                .Size = static_cast<std::uint32_t>(hlsl.size()),
-                .Encoding = 0
-        };
-
-        std::vector<LPCWSTR> args {};
-        args.push_back(L"-Zpc");
-        args.push_back(L"-HV");
-        args.push_back(L"2021");
-        args.push_back(L"-T");
-        args.push_back(L"cs_6_0");
-        args.push_back(L"-E");
-        args.push_back(L"main");
-        args.push_back(L"-spirv");
-        args.push_back(L"-fspv-target-env=vulkan1.3");
-        DXCPointer<IDxcResult> result;
-        _dxc_compiler->Compile(&buffer, args.data(), static_cast<uint32_t>(args.size()), nullptr, IID_PPV_ARGS(&result));
-
-        DXCPointer<IDxcBlob> shader_obj;
-        result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shader_obj), nullptr);
-        SPDLOG_INFO("{}\n", shader_obj->GetBufferSize());
-
-        std::vector<uint32_t> spirv_buffer;
-        spirv_buffer.resize(shader_obj->GetBufferSize() / sizeof(uint32_t));
-
-        for (size_t i = 0; i < spirv_buffer.size(); i++) {
-            uint32_t spv = static_cast<uint32_t*>(shader_obj->GetBufferPointer())[i];
-            spirv_buffer[i] = spv;
-            std::cout << std::hex << (void*) spv << " ";
-            if (i % 8 == 7) {
-                std::cout << std::endl;
-            }
-        }
     }
 
+    auto DXCompiler::compile(const std::string& code, VkShaderStageFlagBits shader_stage) const noexcept
+            -> kstd::Result<std::vector<std::uint32_t>> {
+        using namespace std::string_literals;
+
+        LPCWSTR profile {};
+        if(is_flag_set<VK_SHADER_STAGE_COMPUTE_BIT>(shader_stage)) {
+            profile = L"cs_6_8";
+        }
+        else if(is_flag_set<VK_SHADER_STAGE_VERTEX_BIT>(shader_stage)) {
+            profile = L"vs_6_8";
+        }
+        else if(is_flag_set<VK_SHADER_STAGE_FRAGMENT_BIT>(shader_stage)) {
+            profile = L"ps_6_8";
+        }
+        else {
+            return kstd::Error {fmt::format("Unable to compile HLSL shader: Invalid shader flags {}",
+                                            static_cast<uint32_t>(shader_stage))};
+        }
+
+        // clang-format off
+        std::vector<LPCWSTR> args {
+                {L"-fvk-use-scalar-layout", L"-fspv-target-env=vulkan1.2", L"-spirv", L"-HV", L"2021", L"-T", profile}
+        };
+        // clang-format on
+
+        DxcBuffer code_buffer {.Ptr = &*code.begin(), .Size = static_cast<std::uint32_t>(code.size()), .Encoding = 0};
+        DXCPointer<IDxcResult> result;
+        if(_dxc_compiler->Compile(&code_buffer, args.data(), args.size(), nullptr, IID_PPV_ARGS(&result)) != S_OK) {
+            return kstd::Error {fmt::format("Unable to compile HLSL shader: {}", platform::get_last_error())};
+        }
+
+        DXCPointer<IDxcBlob> output_object;
+        result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&output_object), nullptr);
+        if(!output_object) {
+            return kstd::Error {"Unable to compile HLSL Shader: No valid output object provided"s};
+        }
+
+        const auto pointer = static_cast<uint32_t*>(output_object->GetBufferPointer());
+        return {{pointer, pointer + (output_object->GetBufferSize() / sizeof(uint32_t))}};
+    }
 }// namespace libaetherium::render

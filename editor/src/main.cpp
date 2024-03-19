@@ -42,15 +42,6 @@ auto main(int argc, char* argv[]) -> int {
         return 0;
     }
 
-    const auto file = libaetherium::platform::File {"../hacker.txt", libaetherium::platform::AccessMode::READ};
-
-    // DXC
-    const auto compiler = kstd::try_construct<libaetherium::render::DXCompiler>("/usr/lib/dxc/libdxcompiler.so");
-    if (!compiler) {
-        SPDLOG_ERROR("{}", compiler.get_error());
-        return -1;
-    }
-
     // Create window, vulkan context and device
     const auto window = kstd::try_construct<libaetherium::Window>("Aetherium Editor");
     if(!window) {
