@@ -20,11 +20,12 @@
 #include "libaetherium/render/shader.hpp"
 
 namespace libaetherium::render {
-    Shader::Shader(const vulkan::Device& device, const DXCompiler& shader_compiler) noexcept ://NOLINT
+    Shader::Shader(const vulkan::Device& device, const DXCompiler& compiler, VkShaderStageFlagBits stage) noexcept :
             Resource {},
             _device {&device},
-            _shader_compiler {&shader_compiler},
-            _shader {} {
+            _shader_compiler {&compiler},
+            _shader {},
+            _stage {stage} {
     }
 
     Shader::~Shader() noexcept {
@@ -34,17 +35,17 @@ namespace libaetherium::render {
     }
 
     auto Shader::reload(const kstd::u8* data, kstd::usize size) noexcept -> kstd::Result<void> {
-        if (_device == nullptr) {
+        if(_device == nullptr) {
             return {};
         }
 
-        const std::vector<kstd::u8> data_vector = {data, data + size + 1}; // TODO: Add shader type param
-        const auto shader_result = _shader_compiler->compile(data_vector, VK_SHADER_STAGE_COMPUTE_BIT);
+        const std::vector<kstd::u8> data_vector = {data, data + size + 1};
+        const auto shader_result = _shader_compiler->compile(data_vector, _stage);
         if(!shader_result) {
             return kstd::Error {shader_result.get_error()};
         }
 
-        if (_shader) {
+        if(_shader) {
             vkDestroyShaderModule(**_device, *_shader, nullptr);
         }
 

@@ -28,13 +28,18 @@ namespace libaetherium::render {
         const vulkan::Device* _device;
         const DXCompiler* _shader_compiler;
         kstd::Option<VkShaderModule> _shader;
+        VkShaderStageFlagBits _stage;
 
     public:
-        Shader(const vulkan::Device& device, const DXCompiler& shader_compiler) noexcept;
+        Shader(const vulkan::Device& device, const DXCompiler& shader_compiler, VkShaderStageFlagBits stage) noexcept;
         ~Shader() noexcept;
         KSTD_DEFAULT_MOVE(Shader, Shader);
         KSTD_NO_COPY(Shader, Shader);
 
         [[nodiscard]] auto reload(const kstd::u8* data, kstd::usize size) noexcept -> kstd::Result<void> override;
+
+        [[nodiscard]] inline auto operator*() const noexcept -> const kstd::Option<VkShaderModule>& {
+            return _shader;
+        }
     };
 }// namespace libaetherium::render
