@@ -31,8 +31,11 @@
 #endif
 
 namespace libaetherium {
+    using EventHandlerFunction = std::function<kstd::Result<void>(SDL_Event& event, void* data)>;
+
     class Window final {
         SDL_Window* _window_handle;
+        std::vector<std::pair<EventHandlerFunction, void*>> _event_handlers;
 
     public:
         /**
@@ -57,6 +60,10 @@ namespace libaetherium {
          * @since  14/03/2024
          */
         ~Window() noexcept;
+
+        inline auto add_event_handler(EventHandlerFunction handler_function, void* data_ptr) noexcept -> void {
+            _event_handlers.push_back(std::pair(handler_function, data_ptr));
+        }
 
         /**
          * This method runs a window loop which polls window events while the window doesn't requested to be
