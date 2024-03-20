@@ -21,6 +21,7 @@
 #include "libaetherium/platform/dynlib.hpp"
 #include "libaetherium/utils.hpp"
 #include <filesystem>
+#include <kstd/option.hpp>
 #include <kstd/safe_alloc.hpp>
 #include <spdlog/spdlog.h>
 #include <volk.h>

@@ -19,19 +19,53 @@ else ()
     add_compile_definitions(CPU_32_BIT)
 endif ()
 
+# Detect architecture
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "[aA][rR][mM]64|[aA][aA]rch64")
+    add_compile_definitions(ARCH_ARM64 ARCH_ARM64)
+    set(ARCH "arm64")
+    message(STATUS "Detected ARM64 based processor")
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "[aA][rR][mM]")
+    add_compile_definitions(ARCH_ARM)
+    set(ARCH "arm")
+    message(STATUS "Detected ARM based processor")
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "[xX]86[_\-]64|[xX]64|[aA][mM][dD]64")
+    add_compile_definitions(ARCH_X86_64 ARCH_X86)
+    set(ARCH "x86_64")
+    message(STATUS "Detected x86_64 based processor")
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "[xX]86|i[3456]86")
+    add_compile_definitions(ARCH_X86)
+    set(ARCH "x86")
+    message(STATUS "Detected x86 based processor")
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "[rR]isc[vV]64")
+    add_compile_definitions(ARCH_RISCV64 ARCH_RISCV)
+    message(STATUS "Detected RISC-V64 based processor")
+    set(ARCH "riscv64")
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "[rR]isc[vV]")
+    add_compile_definitions(ARCH_RISCV)
+    set(ARCH "riscv")
+    message(STATUS "Detected RISC-V based processor")
+else ()
+    message(FATAL_ERROR "Unsupported architecture '${CMAKE_SYSTEM_PROCESSOR}'")
+endif ()
+
 # Detect platform
 if (WIN32)
+    set(PLATFORM_WINDOWS ON)
     add_compile_definitions(PLATFORM_WINDOWS)
     link_libraries(kernel32.lib user32.lib)
     message(STATUS "Detected Windows platform")
 elseif (APPLE)
+    set(PLATFORM_MACOS ON)
+    set(PLATFORM_UNIX ON)
     add_compile_definitions(PLATFORM_MACOS PLATFORM_UNIX)
     message(STATUS "Detected MacOS platform")
 elseif (UNIX)
     if (NOT APPLE)
-        add_compile_definitions(PLATFORM_LINUX)
+        add_compile_definitions(PLATFORM_LINUX)#
+        set(PLATFORM_LINUX ON)
     endif ()
     add_compile_definitions(PLATFORM_UNIX)
+    set(PLATFORM_UNIX ON)
     message(STATUS "Detected Unixoid platform")
 else ()
     message(FATAL_ERROR "Unsupported platform '${CMAKE_SYSTEM_NAME}'")
@@ -55,20 +89,23 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 else ()
 endif ()
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
 # Use mold
 find_program(CMX_MOLD_EXECUTABLE "mold")
-if(CMX_MOLD_EXECUTABLE) # mold doesn't work with Clang properly yet..
+if (CMX_MOLD_EXECUTABLE) # mold doesn't work with Clang properly yet..
     message(STATUS "Detected mold linker, substituting")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=mold")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=mold")
 
-    if(NOT DEFINED CMX_NUM_LINK_THREADS) # So we can pass this in via CLI
+    if (NOT DEFINED CMX_NUM_LINK_THREADS) # So we can pass this in via CLI
         cmake_host_system_information(RESULT CMX_NUM_LINK_THREADS QUERY NUMBER_OF_LOGICAL_CORES)
-    endif() # NOT DEFINED NUM_LINK_THREADS
+    endif () # NOT DEFINED NUM_LINK_THREADS
 
     message(STATUS "Using ${CMX_NUM_LINK_THREADS} threads for linking")
     add_link_options("LINKER:--threads,--thread-count=${CMX_NUM_LINK_THREADS}")
-endif() # MOLD_EXECUTABLE AND NOT COMPILER_CLANG
+endif () # MOLD_EXECUTABLE AND NOT COMPILER_CLANG
 
 include(FetchContent)
 
@@ -99,3 +136,16 @@ FetchContent_Populate(spdlog)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/runtime/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/editor/CMakeLists.txt)
+
+# Move files
+if (PLATFORM_WINDOWS)
+    set(EXTERN_DXCOMPILER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/extern/dxcompiler/windows/${ARCH}/dxcompiler.dll")
+    set(EXTERN_DXCOMPILER_LIB_FILE "dxcompiler.dll")
+elseif (PLATFORM_UNIX)
+    set(EXTERN_DXCOMPILER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/extern/dxcompiler/linux/libdxcompiler.so")
+    set(EXTERN_DXCOMPILER_LIB_FILE "libdxcompiler.so")
+else ()
+    message(FATAL_ERROR "Unsupported platform")
+endif ()
+message("${EXTERN_DXCOMPILER_LIBRARY}")
+configure_file("${EXTERN_DXCOMPILER_LIBRARY}" "${CMAKE_CURRENT_BINARY_DIR}/${EXTERN_DXCOMPILER_LIB_FILE}" USE_SOURCE_PERMISSIONS COPYONLY)
