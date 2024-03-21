@@ -17,9 +17,9 @@
  * @since  14/03/2024
  */
 
-#include "libaetherium/vulkan/context.hpp"
+#include "erebos/vulkan/context.hpp"
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     /**
      * This constructor creates a Vulkan instance for this application. If this engine is built in debug mode, this
      * constructor also enables the Vulkan validation layer and the debug utils extension.
@@ -119,4 +119,4 @@ namespace libaetherium::vulkan {
         other._window = nullptr;
         return *this;
     }
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

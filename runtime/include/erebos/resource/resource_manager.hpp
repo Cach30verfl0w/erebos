@@ -18,11 +18,11 @@
  */
 
 #pragma once
-#include "libaetherium/platform/file_watcher.hpp"
+#include "erebos/platform/file_watcher.hpp"
 #include <kstd/safe_alloc.hpp>
 #include <stdexcept>
 
-namespace libaetherium::resource {
+namespace erebos::resource {
     class Resource {
     public:
         Resource() noexcept = default;
@@ -89,4 +89,4 @@ namespace libaetherium::resource {
             return {**resource};
         }
     };
-}// namespace libaetherium::resource
+}// namespace erebos::resource

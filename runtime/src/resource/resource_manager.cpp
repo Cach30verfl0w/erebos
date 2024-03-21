@@ -17,9 +17,9 @@
  * @since  17/03/2024
  */
 
-#include "libaetherium/resource/resource_manager.hpp"
+#include "erebos/resource/resource_manager.hpp"
 
-namespace libaetherium::resource {
+namespace erebos::resource {
     ResourceManager::ResourceManager(const std::filesystem::path& assets_folder) ://NOLINT
             _file_watcher {assets_folder},
             _assets_folder {assets_folder} {

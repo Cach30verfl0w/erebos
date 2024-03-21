@@ -18,8 +18,8 @@
  */
 
 #pragma once
-#include "libaetherium/platform/dynlib.hpp"
-#include "libaetherium/utils.hpp"
+#include "erebos/platform/dynlib.hpp"
+#include "erebos/utils.hpp"
 #include <filesystem>
 #include <kstd/option.hpp>
 #include <kstd/safe_alloc.hpp>
@@ -39,7 +39,7 @@
 
 #include <dxc/dxcapi.h>
 
-namespace libaetherium::render {
+namespace erebos::render {
 #ifdef PLATFORM_WINDOWS
     template<typename T>
     using DXCPointer = Microsoft::WRL::ComPtr<T>;
@@ -61,4 +61,4 @@ namespace libaetherium::render {
         [[nodiscard]] auto compile(const std::vector<kstd::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
                 -> kstd::Result<std::vector<uint32_t>>;
     };
-}// namespace libaetherium::render
+}// namespace erebos::render

@@ -14,6 +14,7 @@
 
 #include <mimalloc.h>
 
+/*
 void* operator new(size_t size) {
     return mi_malloc(size);
 }
@@ -21,3 +22,4 @@ void* operator new(size_t size) {
 void operator delete(void* ptr) {
     mi_free(ptr);
 }
+ */

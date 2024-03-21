@@ -18,10 +18,10 @@
  */
 
 #pragma once
-#include "libaetherium/vulkan/context.hpp"
-#include "libaetherium/vulkan/device.hpp"
+#include "erebos/vulkan/context.hpp"
+#include "erebos/vulkan/device.hpp"
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     class Swapchain final {
         const Device* _device;
         VkSwapchainKHR _swapchain;
@@ -64,4 +64,4 @@ namespace libaetherium::vulkan {
 
         auto operator=(Swapchain&& other) noexcept -> Swapchain&;
     };
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

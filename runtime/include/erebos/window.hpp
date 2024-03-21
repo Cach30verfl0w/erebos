@@ -30,7 +30,7 @@
 #undef main
 #endif
 
-namespace libaetherium {
+namespace erebos {
     using EventHandlerFunction = std::function<kstd::Result<void>(SDL_Event& event, void* data)>;
 
     class Window final {
@@ -89,4 +89,4 @@ namespace libaetherium {
 
         auto operator=(Window&& other) noexcept -> Window&;
     };
-}// namespace libaetherium
+}// namespace erebos

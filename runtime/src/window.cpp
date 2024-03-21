@@ -17,9 +17,9 @@
  * @since  14/03/2024
  */
 
-#include "libaetherium/window.hpp"
+#include "erebos/window.hpp"
 
-namespace libaetherium {
+namespace erebos {
     /**
      * This constructor initializes SDL and creates the window with the specified title and the initial
      * bounds.
@@ -89,7 +89,7 @@ namespace libaetherium {
                 }
 
                 for(const auto& handlers : _event_handlers) {
-                    if (const auto result = handlers.first(event, handlers.second); result.is_error()) {
+                    if(const auto result = handlers.first(event, handlers.second); result.is_error()) {
                         SPDLOG_ERROR("Error while handling SDL event -> {}", result.get_error());
                     }
                 }
@@ -104,4 +104,4 @@ namespace libaetherium {
         other._window_handle = nullptr;
         return *this;
     }
-}// namespace libaetherium
+}// namespace erebos

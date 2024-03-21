@@ -19,9 +19,9 @@
  */
 
 #ifdef PLATFORM_MACOS
-#include "libaetherium/platform/dynlib.hpp"
+#include "erebos/platform/dynlib.hpp"
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     LibraryLoader::LibraryLoader(std::string name) ://NOLINT
             _name {std::move(name)} {
         _handle = ::dlopen(_name.c_str(), RTLD_LAZY);
@@ -58,5 +58,5 @@ namespace libaetherium::platform {
 
         return reinterpret_cast<void*>(address);
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

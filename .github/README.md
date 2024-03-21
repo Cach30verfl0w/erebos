@@ -1,6 +1,6 @@
 
-# Aetherium Engine
-Aetherium is a Vulkan and SDL2-based 3D Game Engine, written in C++ for my modern-day strategy game and educational purposes. Mainly this project is made to improve my knowledge about C++, CMake and the Vulkan API.
+# Erebos Engine
+Erebos Engine is a Vulkan and SDL2-based 3D Game Engine, written in C++ for my modern-day strategy game and educational purposes. Mainly this project is made to improve my knowledge about C++, CMake and the Vulkan API.
 
 ## Dependencies/Credits
 This projects contains a few dependencies to work. Below this text is an enumeration of all dependencies.  
@@ -16,4 +16,4 @@ This projects contains a few dependencies to work. Below this text is an enumera
 | [DirectXShaderCompiler](https://github.com/microsoft/DirectXShaderCompiler) | [Microsoft](https:/github.com/microsoft) | [LLVM Release License](https://github.com/microsoft/DirectXShaderCompiler/blob/main/LICENSE.TXT) |
 
 ## License
-This full project is licensed under [Apache 2.0 License](https://github.com/Cach30verfl0w/aetherium/?tab=Apache-2.0-1-ov-file#readme). Please follow this license and respect my work to this.
+This full project is licensed under [Apache 2.0 License](https://github.com/Cach30verfl0w/erebos/?tab=Apache-2.0-1-ov-file#readme). Please follow this license and respect my work to this.

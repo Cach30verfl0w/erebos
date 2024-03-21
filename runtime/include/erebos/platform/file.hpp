@@ -18,19 +18,19 @@
  */
 
 #pragma once
-#include "libaetherium/platform/platform.hpp"
+#include "erebos/platform/platform.hpp"
+#include "erebos/utils.hpp"
 #include <filesystem>
 #include <kstd/bitflags.hpp>
 #include <kstd/defaults.hpp>
 #include <kstd/types.hpp>
-#include <libaetherium/utils.hpp>
 
 #ifdef PLATFORM_UNIX
 #include <fcntl.h>
 #include <sys/mman.h>
 #endif
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     KSTD_BITFLAGS(uint8_t, AccessMode, READ = 0b001, WRITE = 0b010, EXECUTE = 0b100)
 
     class FileMapping final {
@@ -114,4 +114,4 @@ namespace libaetherium::platform {
 
         auto operator=(File&& other) noexcept -> File&;
     };
-}// namespace libaetherium::platform
+}// namespace erebos::platform

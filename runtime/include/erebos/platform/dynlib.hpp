@@ -19,13 +19,13 @@
  */
 
 #pragma once
-#include "libaetherium/platform/platform.hpp"
+#include "erebos/platform/platform.hpp"
 #include <kstd/defaults.hpp>
 #include <kstd/result.hpp>
 #include <kstd/utils.hpp>
 #include <stdexcept>
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     class LibraryLoader final {
         std::string _name;
         ModuleHandle _handle;
@@ -88,4 +88,4 @@ namespace libaetherium::platform {
     private:
         [[nodiscard]] auto get_function_address(const std::string& name) noexcept -> kstd::Result<void*>;
     };
-}// namespace libaetherium::platform
+}// namespace erebos::platform

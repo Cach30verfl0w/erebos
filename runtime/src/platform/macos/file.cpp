@@ -18,9 +18,9 @@
  */
 
 #ifdef PLATFORM_MACOS
-#include "libaetherium/platform/file.hpp"
+#include "erebos/platform/file.hpp"
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     namespace {
         /**
          * This function converts the specified access mode into the permission for the
@@ -120,8 +120,8 @@ namespace libaetherium::platform {
             _path {std::move(path)},
             _access {access_mode} {
         const auto exists = std::filesystem::exists(_path);
-        if (!exists && _path.has_parent_path()) {
-            if (const auto parent_path = _path.parent_path(); std::filesystem::exists(parent_path)) {
+        if(!exists && _path.has_parent_path()) {
+            if(const auto parent_path = _path.parent_path(); std::filesystem::exists(parent_path)) {
                 std::filesystem::create_directories(parent_path);
             }
         }
@@ -191,5 +191,5 @@ namespace libaetherium::platform {
         _handle = other._handle;
         return *this;
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

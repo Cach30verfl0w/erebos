@@ -19,9 +19,9 @@
  */
 
 #ifdef PLATFORM_WINDOWS
-#include "libaetherium/platform/dynlib.hpp"
+#include "erebos/platform/dynlib.hpp"
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     LibraryLoader::LibraryLoader(std::string name) ://NOLINT
             _name {std::move(name)} {
         _handle = ::LoadLibraryW(kstd::utils::to_wcs(_name).data());
@@ -57,5 +57,5 @@ namespace libaetherium::platform {
         }
         return reinterpret_cast<void*>(address);
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

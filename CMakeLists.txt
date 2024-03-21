@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(aetherium)
+project(erebos)
 
 # Default C++ and C standard
 if (NOT DEFINED CMAKE_CXX_STANDARD)

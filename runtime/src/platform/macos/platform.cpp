@@ -18,11 +18,11 @@
  */
 
 #ifdef PLATFORM_MACOS
-#include "libaetherium/platform/platform.hpp"
+#include "erebos/platform/platform.hpp"
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     auto get_last_error() noexcept -> std::string {
         return ::strerror(errno);
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

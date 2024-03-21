@@ -18,10 +18,10 @@
  */
 
 #ifdef PLATFORM_WINDOWS
-#include "libaetherium/platform/file_watcher.hpp"
+#include "erebos/platform/file_watcher.hpp"
 #include <algorithm>
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     namespace {
         auto mask_to_action_string(const DWORD action) noexcept -> std::string {
             if(action == FILE_ACTION_MODIFIED) {
@@ -103,8 +103,7 @@ namespace libaetherium::platform {
 
                     {
                         const auto lock = std::lock_guard {_event_queue_mutex};
-                        _event_queue.push_back(
-                                FileEvent {action_to_event_type(notify->Action), path});
+                        _event_queue.push_back(FileEvent {action_to_event_type(notify->Action), path});
                     }
                     offset += notify->NextEntryOffset;
                 } while(notify->NextEntryOffset > 0);
@@ -149,5 +148,5 @@ namespace libaetherium::platform {
         _is_running = true;
         return *this;
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

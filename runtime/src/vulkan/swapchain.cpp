@@ -17,9 +17,9 @@
  * @since  14/03/2024
  */
 
-#include "libaetherium/vulkan/swapchain.hpp"
+#include "erebos/vulkan/swapchain.hpp"
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     Swapchain::Swapchain(const VulkanContext& context, const Device& device) ://NOLINT
             _device {&device},
             _swapchain {},
@@ -126,4 +126,4 @@ namespace libaetherium::vulkan {
         other._image_views = {};
         return *this;
     }
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

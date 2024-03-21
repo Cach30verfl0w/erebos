@@ -17,9 +17,9 @@
  * @since  14/03/2024
  */
 
-#include "libaetherium/vulkan/fence.hpp"
+#include "erebos/vulkan/fence.hpp"
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     /**
      * This constructor creates a new fence on the specified device. This function throws an exception when the
      * creation doesn't works.
@@ -46,7 +46,7 @@ namespace libaetherium::vulkan {
     }
 
     Fence::~Fence() noexcept {
-        if (_device != nullptr && _fence != nullptr) {
+        if(_device != nullptr && _fence != nullptr) {
             ::vkDestroyFence(**_device, _fence, nullptr);
             _device = nullptr;
             _fence = nullptr;
@@ -60,4 +60,4 @@ namespace libaetherium::vulkan {
         other._fence = nullptr;
         return *this;
     }
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

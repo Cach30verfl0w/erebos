@@ -18,9 +18,9 @@
  */
 
 #pragma once
-#include "libaetherium/platform/file.hpp"
-#include "libaetherium/platform/platform.hpp"
-#include "libaetherium/utils.hpp"
+#include "erebos/platform/file.hpp"
+#include "erebos/platform/platform.hpp"
+#include "erebos/utils.hpp"
 #include <filesystem>
 #include <kstd/bitflags.hpp>
 #include <kstd/types.hpp>
@@ -33,7 +33,7 @@
 #include <sys/inotify.h>
 #endif
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     enum FileEventType : kstd::u8 {
         CREATED,
         DELETED,
@@ -83,4 +83,4 @@ namespace libaetherium::platform {
 
         auto operator=(FileWatcher&& other) noexcept -> FileWatcher&;
     };
-}// namespace libaetherium::platform
+}// namespace erebos::platform

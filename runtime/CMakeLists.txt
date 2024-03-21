@@ -5,11 +5,11 @@ file(GLOB_RECURSE RUNTIME_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/src/
 
 
 # Configure libraries
-message("Configure libaetherium")
-add_library(aetherium SHARED ${RUNTIME_SOURCE_FILES})
-target_include_directories(aetherium PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/runtime/include")
-add_library(aetherium-static STATIC ${RUNTIME_SOURCE_FILES})
-target_include_directories(aetherium-static PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/runtime/include")
+message("Configure liberebos")
+add_library(erebos SHARED ${RUNTIME_SOURCE_FILES})
+target_include_directories(erebos PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/runtime/include")
+add_library(erebos-static STATIC ${RUNTIME_SOURCE_FILES})
+target_include_directories(erebos-static PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/runtime/include")
 
 # Add SDL2
 FetchContent_Declare(
@@ -19,14 +19,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(sdl2)
 
-target_link_libraries(aetherium PUBLIC SDL2-static)
-add_dependencies(aetherium SDL2-static)
-target_link_libraries(aetherium-static PUBLIC SDL2-static)
-add_dependencies(aetherium-static SDL2-static)
+target_link_libraries(erebos PUBLIC SDL2-static)
+add_dependencies(erebos SDL2-static)
+target_link_libraries(erebos-static PUBLIC SDL2-static)
+add_dependencies(erebos-static SDL2-static)
 
 # Add dxc
-target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
-target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
 
 # Add mimalloc
 FetchContent_Declare(
@@ -36,10 +36,10 @@ FetchContent_Declare(
         GIT_PROGRESS ture
 )
 FetchContent_MakeAvailable(mimalloc)
-target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/mimalloc-src/include")
-target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/mimalloc-src/include")
-target_link_libraries(aetherium PUBLIC mimalloc)
-target_link_libraries(aetherium-static PUBLIC mimalloc)
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/mimalloc-src/include")
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/mimalloc-src/include")
+target_link_libraries(erebos PUBLIC mimalloc)
+target_link_libraries(erebos-static PUBLIC mimalloc)
 
 # Add spirv-reflect
 FetchContent_Declare(
@@ -49,16 +49,16 @@ FetchContent_Declare(
         GIT_PROGRESS true
 )
 FetchContent_Populate(spirv-reflect)
-target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/spirv-reflect-src/include")
-target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/spirv-reflect-src/include")
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/spirv-reflect-src/include")
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/spirv-reflect-src/include")
 
 # Add fmt
-target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/fmt-src/include")
-target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/fmt-src/include")
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/fmt-src/include")
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/fmt-src/include")
 
 # Add spdlog
-target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
-target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
 add_compile_definitions(SPDLOG_HEADER_ONLY SPDLOG_FMT_EXTERNAL)
 
 # Add kstd-core
@@ -70,8 +70,8 @@ FetchContent_Declare(
 )
 FetchContent_Populate(kstd-core)
 
-target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/kstd-core-src/include")
-target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/kstd-core-src/include")
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/kstd-core-src/include")
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/kstd-core-src/include")
 
 # Add volk
 FetchContent_Declare(
@@ -82,10 +82,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(volk)
 
-target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/volk-src/include")
-target_link_libraries(aetherium PUBLIC volk)
-target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/volk-src/include")
-target_link_libraries(aetherium-static PUBLIC volk)
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/volk-src/include")
+target_link_libraries(erebos PUBLIC volk)
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/volk-src/include")
+target_link_libraries(erebos-static PUBLIC volk)
 
 # Add Vulkan Memory Allocator
 FetchContent_Declare(
@@ -96,13 +96,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(vk_mem_alloc)
 
-target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/vk_mem_alloc-src/include")
-target_link_libraries(aetherium PUBLIC VulkanMemoryAllocator)
-target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/vk_mem_alloc-src/include")
-target_link_libraries(aetherium-static PUBLIC VulkanMemoryAllocator)
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/vk_mem_alloc-src/include")
+target_link_libraries(erebos PUBLIC VulkanMemoryAllocator)
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/vk_mem_alloc-src/include")
+target_link_libraries(erebos-static PUBLIC VulkanMemoryAllocator)
 
-# Add gtest to libaetherium-test
-message("Configure google test for libaetherium")
+# Add gtest to liberebos-test
 FetchContent_Declare(
         google-test
         GIT_REPOSITORY https://github.com/google/googletest.git
@@ -114,7 +113,7 @@ include(GoogleTest)
 
 # Add tests
 file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/tests/*.c*")
-add_executable(aetherium-tests ${TEST_SOURCES})
-gtest_discover_tests(aetherium-tests)
-target_link_libraries(aetherium-tests PUBLIC gtest_main)
-target_link_libraries(aetherium-tests PUBLIC aetherium-static)
+add_executable(erebos-tests ${TEST_SOURCES})
+gtest_discover_tests(erebos-tests)
+target_link_libraries(erebos-tests PUBLIC gtest_main)
+target_link_libraries(erebos-tests PUBLIC erebos-static)

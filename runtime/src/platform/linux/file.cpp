@@ -18,7 +18,7 @@
  */
 
 #ifdef PLATFORM_LINUX
-#include "libaetherium/platform/file.hpp"
+#include "erebos/platform/file.hpp"
 
 #ifdef CPU_64_BIT
 #define OPEN ::open64
@@ -28,7 +28,7 @@
 #define MMAP ::mmap
 #endif
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     namespace {
         /**
          * This function converts the specified access mode into the permission for the
@@ -199,5 +199,5 @@ namespace libaetherium::platform {
         _handle = other._handle;
         return *this;
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

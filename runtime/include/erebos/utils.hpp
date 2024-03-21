@@ -25,7 +25,7 @@
 #include <vector>
 #include <volk.h>
 
-namespace libaetherium {
+namespace erebos {
     using VoidResult = kstd::Result<void>;
 
     template<typename T, T... FLAGS>
@@ -71,4 +71,4 @@ namespace libaetherium {
             default: return "Unknown";
         }
     }
-}// namespace libaetherium
+}// namespace erebos

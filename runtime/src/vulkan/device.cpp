@@ -17,11 +17,11 @@
  * @since  14/03/2024
  */
 
-#include "libaetherium/vulkan/device.hpp"
+#include "erebos/vulkan/device.hpp"
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     namespace {
         auto get_device_local_heap(VkPhysicalDevice device_handle) -> uint32_t {
             VkPhysicalDeviceMemoryProperties memory_properties {};
@@ -205,4 +205,4 @@ namespace libaetherium::vulkan {
 
         return {{context, devices.at(0)}};
     }
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

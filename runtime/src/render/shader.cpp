@@ -17,9 +17,9 @@
  * @since  19/03/2024
  */
 
-#include "libaetherium/render/shader.hpp"
+#include "erebos/render/shader.hpp"
 
-namespace libaetherium::render {
+namespace erebos::render {
     Shader::Shader(const vulkan::Device& device, const DXCompiler& compiler, VkShaderStageFlagBits stage) noexcept :
             Resource {},
             _device {&device},

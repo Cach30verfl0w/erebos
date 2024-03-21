@@ -18,9 +18,9 @@
  */
 
 #ifdef PLATFORM_LINUX
-#include "libaetherium/platform/file_watcher.hpp"
+#include "erebos/platform/file_watcher.hpp"
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     namespace {
         auto mask_to_action_string(const kstd::i32 mask) noexcept -> std::string {
             if(is_flag_set<IN_DELETE_SELF, IN_DELETE, IN_MOVED_FROM>(mask)) {
@@ -163,5 +163,5 @@ namespace libaetherium::platform {
         _is_running = true;
         return *this;
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

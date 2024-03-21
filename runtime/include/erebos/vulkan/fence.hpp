@@ -18,11 +18,11 @@
  */
 
 #pragma once
-#include "libaetherium/vulkan/device.hpp"
+#include "erebos/vulkan/device.hpp"
 #include <chrono>
 #include <volk.h>
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     /**
      * This is a wrapper around the fence, provided by Vulkan. Fences are allowing the developer to wait on the CPU-side
      * for the end of GPU-side operations like queue submits etc.
@@ -83,4 +83,4 @@ namespace libaetherium::vulkan {
 
         auto operator=(Fence&& other) noexcept -> Fence&;
     };
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

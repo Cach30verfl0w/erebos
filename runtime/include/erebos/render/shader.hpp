@@ -18,12 +18,12 @@
  */
 
 #pragma once
-#include "libaetherium/render/dxcompiler.hpp"
-#include "libaetherium/resource/resource_manager.hpp"
-#include "libaetherium/vulkan/device.hpp"
+#include "erebos/render/dxcompiler.hpp"
+#include "erebos/resource/resource_manager.hpp"
+#include "erebos/vulkan/device.hpp"
 #include <kstd/option.hpp>
 
-namespace libaetherium::render {
+namespace erebos::render {
     class Shader final : public resource::Resource {
         const vulkan::Device* _device;
         const DXCompiler* _shader_compiler;
@@ -42,4 +42,4 @@ namespace libaetherium::render {
             return _shader;
         }
     };
-}// namespace libaetherium::render
+}// namespace erebos::render

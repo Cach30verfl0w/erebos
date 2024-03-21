@@ -18,8 +18,8 @@
  */
 
 #pragma once
-#include "libaetherium/utils.hpp"
-#include "libaetherium/vulkan/context.hpp"
+#include "erebos/utils.hpp"
+#include "erebos/vulkan/context.hpp"
 #include <kstd/defaults.hpp>
 #include <kstd/result.hpp>
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
@@ -27,7 +27,7 @@
 #include <vk_mem_alloc.h>
 #include <volk.h>
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     class Device final {
         VkPhysicalDevice _phy_device;
         VkDevice _device;
@@ -117,4 +117,4 @@ namespace libaetherium::vulkan {
      * @since         14/03/2024
      */
     [[nodiscard]] auto find_device(const VulkanContext& context) noexcept -> kstd::Result<Device>;
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

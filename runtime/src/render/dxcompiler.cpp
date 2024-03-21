@@ -17,10 +17,10 @@
  * @since  18/03/2024
  */
 
-#include "libaetherium/render/dxcompiler.hpp"
+#include "erebos/render/dxcompiler.hpp"
 #include <iostream>
 
-namespace libaetherium::render {
+namespace erebos::render {
 
     DXCompiler::DXCompiler(const std::filesystem::path& path) ://NOLINT
             _library_loader {platform::LibraryLoader {path.string()}},

@@ -18,9 +18,9 @@
  */
 
 #ifdef PLATFORM_WINDOWS
-#include "libaetherium/platform/platform.hpp"
+#include "erebos/platform/platform.hpp"
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     auto get_last_error() noexcept -> std::string {
         const auto error_code = ::GetLastError();
 
@@ -37,5 +37,5 @@ namespace libaetherium::platform {
         LocalFree(buffer);
         return message;
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

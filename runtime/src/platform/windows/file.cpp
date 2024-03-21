@@ -18,9 +18,9 @@
  */
 
 #ifdef PLATFORM_WINDOWS
-#include "libaetherium/platform/file.hpp"
+#include "erebos/platform/file.hpp"
 
-namespace libaetherium::platform {
+namespace erebos::platform {
     namespace {
         /**
          * This function converts the specified access mode into the access flags for the
@@ -201,5 +201,5 @@ namespace libaetherium::platform {
         _handle = other._handle;
         return *this;
     }
-}// namespace libaetherium::platform
+}// namespace erebos::platform
 #endif

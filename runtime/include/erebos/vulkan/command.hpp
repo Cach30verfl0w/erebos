@@ -18,11 +18,11 @@
  */
 
 #pragma once
-#include "libaetherium/vulkan/device.hpp"
-#include "libaetherium/vulkan/fence.hpp"
+#include "erebos/vulkan/device.hpp"
+#include "erebos/vulkan/fence.hpp"
 #include <kstd/safe_alloc.hpp>
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     class CommandPool;
 
     class CommandBuffer final {
@@ -139,7 +139,7 @@ namespace libaetherium::vulkan {
             submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submit_info.pCommandBuffers = &raw_command_buffer;
             submit_info.commandBufferCount = 1;
-            vkQueueSubmit(_device->get_graphics_queue(), 1, &submit_info, *submit_fence); // TODO: Error handling
+            vkQueueSubmit(_device->get_graphics_queue(), 1, &submit_info, *submit_fence);// TODO: Error handling
             if(const auto wait_result = submit_fence.wait_for(); wait_result.is_error()) {
                 return wait_result;
             }
@@ -159,4 +159,4 @@ namespace libaetherium::vulkan {
 
         auto operator=(CommandPool&& other) noexcept -> CommandPool&;
     };
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

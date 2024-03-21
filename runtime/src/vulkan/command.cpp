@@ -17,9 +17,9 @@
  * @since  14/03/2024
  */
 
-#include "libaetherium/vulkan/command.hpp"
+#include "erebos/vulkan/command.hpp"
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     /**
      * This constructor initializes the values of this wrapper with the specified command pool and command
      * buffer.
@@ -29,8 +29,7 @@ namespace libaetherium::vulkan {
      * @author               Cedric Hammes
      * @since                14/03/2024
      */
-    CommandBuffer::CommandBuffer(const libaetherium::vulkan::CommandPool* command_pool,
-                                 VkCommandBuffer command_buffer) noexcept ://NOLINT
+    CommandBuffer::CommandBuffer(const CommandPool* command_pool, VkCommandBuffer command_buffer) noexcept ://NOLINT
             _command_pool {command_pool},
             _command_buffer {command_buffer} {
     }
@@ -59,14 +58,14 @@ namespace libaetherium::vulkan {
         VkCommandBufferBeginInfo command_buffer_begin_info {};
         command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         command_buffer_begin_info.flags = usage;
-        if (const auto err = ::vkBeginCommandBuffer(_command_buffer, &command_buffer_begin_info); err != VK_SUCCESS) {
+        if(const auto err = ::vkBeginCommandBuffer(_command_buffer, &command_buffer_begin_info); err != VK_SUCCESS) {
             return kstd::Error {fmt::format("Unable to begin command buffer: {}", vk_strerror(err))};
         }
         return {};
     }
 
     auto CommandBuffer::end() const noexcept -> kstd::Result<void> {
-        if (const auto err = ::vkEndCommandBuffer(_command_buffer); err != VK_SUCCESS) {
+        if(const auto err = ::vkEndCommandBuffer(_command_buffer); err != VK_SUCCESS) {
             return kstd::Error {fmt::format("Unable to begin command buffer: {}", vk_strerror(err))};
         }
         return {};
@@ -154,4 +153,4 @@ namespace libaetherium::vulkan {
         other._command_pool = nullptr;
         return *this;
     }
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

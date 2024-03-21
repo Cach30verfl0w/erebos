@@ -18,10 +18,10 @@
  */
 
 #include <cxxopts.hpp>
+#include <erebos/vulkan/context.hpp>
+#include <erebos/vulkan/device.hpp>
+#include <erebos/window.hpp>
 #include <kstd/safe_alloc.hpp>
-#include <libaetherium/vulkan/context.hpp>
-#include <libaetherium/vulkan/device.hpp>
-#include <libaetherium/window.hpp>
 #include <spdlog/spdlog.h>
 
 auto main(int argc, char* argv[]) -> int {
@@ -41,19 +41,19 @@ auto main(int argc, char* argv[]) -> int {
     }
 
     // Create window, vulkan context and device
-    auto window = kstd::try_construct<libaetherium::Window>("Aetherium Editor");
+    auto window = kstd::try_construct<erebos::Window>("Aetherium Editor");
     if(!window) {
         SPDLOG_ERROR("{}", window.get_error());
         return -1;
     }
 
-    const auto vulkan_context = kstd::try_construct<libaetherium::vulkan::VulkanContext>(*window);
+    const auto vulkan_context = kstd::try_construct<erebos::vulkan::VulkanContext>(*window);
     if(!vulkan_context) {
         SPDLOG_ERROR("{}", vulkan_context.get_error());
         return -1;
     }
 
-    const auto device = libaetherium::vulkan::find_device(*vulkan_context);
+    const auto device = erebos::vulkan::find_device(*vulkan_context);
     if(device.is_error()) {
         SPDLOG_ERROR("{}", device.get_error());
         return -1;

@@ -18,12 +18,12 @@
  */
 
 #pragma once
-#include "libaetherium/utils.hpp"
-#include "libaetherium/window.hpp"
+#include "erebos/utils.hpp"
+#include "erebos/window.hpp"
 #include <SDL2/SDL_vulkan.h>
 #include <volk.h>
 
-namespace libaetherium::vulkan {
+namespace erebos::vulkan {
     /**
      * This class holds the context information for the Vulkan API. This class mainly holds the application instance of
      * Vulkan and the vulkan surface, created by the window.
@@ -90,4 +90,4 @@ namespace libaetherium::vulkan {
 
         auto operator=(VulkanContext&& other) noexcept -> VulkanContext&;
     };
-}// namespace libaetherium::vulkan
+}// namespace erebos::vulkan

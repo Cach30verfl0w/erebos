@@ -33,7 +33,7 @@
 #include <unistd.h>
 #endif
 
-namespace libaetherium::platform {
+namespace erebos::platform {
 #ifdef PLATFORM_WINDOWS
     using ModuleHandle = HMODULE;
     using FileHandle = HANDLE;
@@ -53,4 +53,4 @@ namespace libaetherium::platform {
     static inline ModuleHandle invalid_module_handle = nullptr;
 
     [[nodiscard]] auto get_last_error() noexcept -> std::string;
-}// namespace libaetherium::platform
+}// namespace erebos::platform
