@@ -18,9 +18,9 @@
  */
 
 #include <gtest/gtest.h>
-#include <libaetherium/render/dxcompiler.hpp>
+#include <erebos/render/dxcompiler.hpp>
 
-TEST(libaetherium_render_DXCompiler, test_compile) {
+TEST(erebos_render_DXCompiler, test_compile) {
 #ifdef PLATFORM_UNIX
     constexpr std::string_view file_path = "./libdxcompiler.so";
 #else
@@ -31,7 +31,7 @@ TEST(libaetherium_render_DXCompiler, test_compile) {
         }
     )";
 
-    const auto compiler = kstd::try_construct<libaetherium::render::DXCompiler>(file_path);
+    const auto compiler = kstd::try_construct<erebos::render::DXCompiler>(file_path);
     compiler.throw_if_error();
     ASSERT_TRUE(compiler->compile({code.cbegin(), code.cend()}, VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT));
 }

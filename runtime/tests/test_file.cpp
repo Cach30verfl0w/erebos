@@ -17,12 +17,12 @@
  * @since  18/03/2024
  */
 
-#include <libaetherium/platform/file.hpp>
+#include <erebos/platform/file.hpp>
 #include <gtest/gtest.h>
 
 TEST(libaetherium_platform_File, test_file_create) {
     {
-        const auto file = libaetherium::platform::File {"file.txt", libaetherium::platform::AccessMode::READ};
+        const auto file = erebos::platform::File {"file.txt", erebos::platform::AccessMode::READ};
         ASSERT_TRUE(std::filesystem::exists("file.txt"));
     }
     std::filesystem::remove("file.txt");
