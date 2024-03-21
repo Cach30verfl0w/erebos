@@ -59,11 +59,11 @@ namespace libaetherium::vulkan {
          * @author        Cedric Hammes
          * @since         24/03/2024
          */
-        template<typename Rep = long, typename Period = std::ratio<std::numeric_limits<Rep>::max()>>
+        template<typename Rep = int, typename Period = std::ratio<std::numeric_limits<Rep>::max()>>
         [[nodiscard]] auto wait_for(const std::chrono::duration<Rep, Period>& timeout =
                                             std::chrono::duration<Rep, Period>::max()) const noexcept -> VoidResult {
             const auto timeout_millis = std::chrono::duration_cast<std::chrono::milliseconds>(timeout).count();
-            if(const auto err = vkWaitForFences(*_device, 1, &_fence, true, timeout_millis); err != VK_SUCCESS) {
+            if(const auto err = vkWaitForFences(**_device, 1, &_fence, true, timeout_millis); err != VK_SUCCESS) {
                 return kstd::Error {fmt::format("Unable to wait for fence: {}", vk_strerror(err))};
             }
             return {};

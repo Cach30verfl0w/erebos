@@ -12,13 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-/**
- * @author Cedric Hammes
- * @since  15/03/2024
- */
+#include <mimalloc.h>
 
-#pragma once
+void* operator new(size_t size) {
+    return mi_malloc(size);
+}
 
-namespace libaetherium::render {
-    
+void operator delete(void* ptr) {
+    mi_free(ptr);
 }

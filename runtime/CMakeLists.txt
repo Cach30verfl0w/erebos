@@ -28,6 +28,19 @@ add_dependencies(aetherium-static SDL2-static)
 target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
 target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
 
+# Add mimalloc
+FetchContent_Declare(
+        mimalloc
+        GIT_REPOSITORY https://github.com/Microsoft/mimalloc
+        GIT_TAG v2.1.2
+        GIT_PROGRESS ture
+)
+FetchContent_MakeAvailable(mimalloc)
+target_include_directories(aetherium PUBLIC "${CMAKE_BINARY_DIR}/_deps/mimalloc-src/include")
+target_include_directories(aetherium-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/mimalloc-src/include")
+target_link_libraries(aetherium PUBLIC mimalloc)
+target_link_libraries(aetherium-static PUBLIC mimalloc)
+
 # Add spirv-reflect
 FetchContent_Declare(
         spirv-reflect

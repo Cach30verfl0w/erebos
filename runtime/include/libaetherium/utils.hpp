@@ -20,7 +20,9 @@
 #pragma once
 #include <kstd/result.hpp>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 #include <string>
+#include <vector>
 #include <volk.h>
 
 namespace libaetherium {
