@@ -35,11 +35,12 @@ FetchContent_Declare(
         GIT_TAG v2.1.2
         GIT_PROGRESS ture
 )
+set(MI_OVERRIDE OFF)
 FetchContent_MakeAvailable(mimalloc)
 target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/mimalloc-src/include")
 target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/mimalloc-src/include")
-target_link_libraries(erebos PUBLIC mimalloc)
-target_link_libraries(erebos-static PUBLIC mimalloc)
+target_link_libraries(erebos PUBLIC mimalloc-static)
+target_link_libraries(erebos-static PUBLIC mimalloc-static)
 
 # Add spirv-reflect
 FetchContent_Declare(
