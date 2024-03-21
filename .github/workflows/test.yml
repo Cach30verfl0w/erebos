@@ -5,13 +5,13 @@ on:
 jobs:
   editor-cpp-20-debug:
     name: Editor / C++ 20 (Debug)
-    uses: cach30verfl0w/aetherium/.github/workflows/cpp.yml@main
+    uses: cach30verfl0w/erebos/.github/workflows/cpp.yml@main
     with:
       cpp_std_version: 20
-      target: aetherium-editor
+      target: erebos-editor
   tests-cpp-20-debug:
     name: Tests / C++ 20 (Debug)
-    uses: cach30verfl0w/aetherium/.github/workflows/cpp.yml@main
+    uses: cach30verfl0w/erebos/.github/workflows/cpp.yml@main
     with:
       cpp_std_version: 20
-      target: aetherium-tests
+      target: erebos-tests

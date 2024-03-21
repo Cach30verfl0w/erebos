@@ -17,7 +17,7 @@ jobs:
   # Linux
   linux-x64-gcc:
     name: Linux x64 (GCC)
-    uses: cach30verfl0w/aetherium/.github/workflows/linux-gcc.yml@main
+    uses: cach30verfl0w/erebos/.github/workflows/linux-gcc.yml@main
     with:
       job_name: Linux x64 (GCC)
       image_name: ubuntu-22.04
@@ -27,7 +27,7 @@ jobs:
       target: ${{inputs.target}}
   linux-x64-clang:
     name: Linux x64 (Clang)
-    uses: cach30verfl0w/aetherium/.github/workflows/linux-clang.yml@main
+    uses: cach30verfl0w/erebos/.github/workflows/linux-clang.yml@main
     with:
       job_name: Linux x64 (Clang)
       image_name: ubuntu-22.04
@@ -39,7 +39,7 @@ jobs:
   # macOS
   macos-x64-clang:
     name: macOS x86 (Clang)
-    uses: cach30verfl0w/aetherium/.github/workflows/macos-clang.yml@main
+    uses: cach30verfl0w/erebos/.github/workflows/macos-clang.yml@main
     with:
       job_name: macOS x64 (Clang)
       image_name: macos-13
@@ -50,7 +50,7 @@ jobs:
   # Windows
   windows-x64-msvc:
     name: Windows x64 (MSVC)
-    uses: cach30verfl0w/aetherium/.github/workflows/windows-msvc.yml@main
+    uses: cach30verfl0w/erebos/.github/workflows/windows-msvc.yml@main
     with:
       job_name: Windows x64 (MSVC)
       image_name: windows-2022
@@ -59,7 +59,7 @@ jobs:
       target: ${{inputs.target}}
   windows-x64-clang:
     name: Windows x64 (Clang)
-    uses: cach30verfl0w/aetherium/.github/workflows/windows-clang.yml@main
+    uses: cach30verfl0w/erebos/.github/workflows/windows-clang.yml@main
     with:
       job_name: Windows x64 (Clang)
       image_name: windows-2022
