@@ -30,7 +30,7 @@ namespace erebos::render {
         kstd::Option<VkShaderModule> _shader;
         VkShaderStageFlagBits _stage;
 
-    public:
+        public:
         Shader(const vulkan::Device& device, const DXCompiler& shader_compiler, VkShaderStageFlagBits stage) noexcept;
         ~Shader() noexcept;
         KSTD_DEFAULT_MOVE(Shader, Shader);

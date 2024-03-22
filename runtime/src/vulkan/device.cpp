@@ -51,10 +51,10 @@ namespace erebos::vulkan {
      * @author                       Cedric Hammes
      * @since                        14/03/2024
      */
-    Device::Device(const VulkanContext& context, VkPhysicalDevice physical_device_handle) ://NOLINT
-            _phy_device {physical_device_handle},
-            _device {},
-            _queue {} {
+    Device::Device(const VulkanContext& context, VkPhysicalDevice physical_device_handle)
+        : _phy_device {physical_device_handle}
+        , _device {}
+        , _queue {} {
         constexpr auto queue_property = 1.0f;
         constexpr std::array<const char*, 1> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
@@ -79,7 +79,8 @@ namespace erebos::vulkan {
         device_queue_create_info.pQueuePriorities = &queue_property;
 
         // Create device itself
-        SPDLOG_INFO("Creating device '{}' (Driver Version: {}.{}.{})", device_properties.deviceName,
+        SPDLOG_INFO("Creating device '{}' (Driver Version: {}.{}.{})",
+                    device_properties.deviceName,
                     VK_API_VERSION_MAJOR(device_properties.driverVersion),
                     VK_API_VERSION_MINOR(device_properties.driverVersion),
                     VK_API_VERSION_PATCH(device_properties.driverVersion));
@@ -140,11 +141,11 @@ namespace erebos::vulkan {
         }
     }
 
-    Device::Device(Device&& other) noexcept :
-            _phy_device {other._phy_device},
-            _device {other._device},
-            _queue {other._queue},
-            _allocator {other._allocator} {
+    Device::Device(Device&& other) noexcept
+        : _phy_device {other._phy_device}
+        , _device {other._device}
+        , _queue {other._queue}
+        , _allocator {other._allocator} {
         other._phy_device = nullptr;
         other._device = nullptr;
         other._queue = nullptr;

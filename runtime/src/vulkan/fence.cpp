@@ -28,9 +28,9 @@ namespace erebos::vulkan {
      * @author       Cedric Hammes
      * @since        24/03/2024
      */
-    Fence::Fence(const Device& device) ://NOLINT
-            _device {&device},
-            _fence {} {
+    Fence::Fence(const Device& device)
+        : _device {&device}
+        , _fence {} {
         VkFenceCreateInfo fence_create_info = {};
         fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         if(const auto err = ::vkCreateFence(**_device, &fence_create_info, nullptr, &_fence); err != VK_SUCCESS) {
@@ -38,9 +38,9 @@ namespace erebos::vulkan {
         }
     }
 
-    Fence::Fence(Fence&& other) noexcept :
-            _device {other._device},
-            _fence {other._fence} {
+    Fence::Fence(Fence&& other) noexcept
+        : _device {other._device}
+        , _fence {other._fence} {
         other._device = nullptr;
         other._fence = nullptr;
     }

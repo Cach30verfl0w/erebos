@@ -34,12 +34,7 @@
 #endif
 
 namespace erebos::platform {
-    enum FileEventType : kstd::u8 {
-        CREATED,
-        DELETED,
-        WRITTEN,
-        UNKNOWN
-    };
+    enum FileEventType : kstd::u8 { CREATED, DELETED, WRITTEN, UNKNOWN };
 
     struct FileEvent final {
         FileEventType type;
@@ -61,7 +56,7 @@ namespace erebos::platform {
         std::unordered_map<FileHandle, std::filesystem::path> _handle_to_path_map;
 #endif
 
-    public:
+        public:
         explicit FileWatcher(std::filesystem::path base_path);
         FileWatcher(FileWatcher&& other) noexcept;
         ~FileWatcher() noexcept;
@@ -69,8 +64,7 @@ namespace erebos::platform {
 
         template<typename F>
         auto handle_event_queue(F&& callback_function) noexcept -> kstd::Result<void> {
-            static_assert(std::is_convertible_v<F, std::function<kstd::Result<void>(const FileEvent&)>>,
-                          "Invalid callback function");
+            static_assert(std::is_convertible_v<F, std::function<kstd::Result<void>(const FileEvent&)>>, "Invalid callback function");
             const auto guard = std::lock_guard {_event_queue_mutex};
             while(!_event_queue.empty()) {
                 if(const auto result = callback_function(std::move(_event_queue.front())); !result) {

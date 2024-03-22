@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#include "erebos/platform/platform.hpp"
 #include "erebos/vulkan/device.hpp"
 #include "erebos/vulkan/fence.hpp"
 #include <kstd/safe_alloc.hpp>
@@ -29,7 +30,7 @@ namespace erebos::vulkan {
         const CommandPool* _command_pool;
         VkCommandBuffer _command_buffer;
 
-    public:
+        public:
         /**
          * This constructor initializes the values of this wrapper with the specified command pool and command
          * buffer.
@@ -74,7 +75,7 @@ namespace erebos::vulkan {
 
         friend class CommandBuffer;
 
-    public:
+        public:
         /**
          * This constructor creates a command pool on the specified device
          *
@@ -116,8 +117,7 @@ namespace erebos::vulkan {
          */
         template<typename F>
         auto emit_command_buffer(F&& function) const noexcept -> kstd::Result<void> {
-            static_assert(std::is_convertible_v<F, std::function<void(CommandBuffer&)>>,
-                          "Invalid command buffer consumer");
+            static_assert(std::is_convertible_v<F, std::function<void(CommandBuffer&)>>, "Invalid command buffer consumer");
 
             // Create command buffer and submit fence
             const auto command_buffer = std::move(allocate(1).get_or_throw()[0]);
@@ -125,8 +125,7 @@ namespace erebos::vulkan {
             const auto raw_command_buffer = *command_buffer;
 
             // Perform operation
-            if(const auto begin_result = command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-               begin_result.is_error()) {
+            if(const auto begin_result = command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT); begin_result.is_error()) {
                 return begin_result;
             }
             function(&command_buffer);
@@ -139,7 +138,10 @@ namespace erebos::vulkan {
             submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submit_info.pCommandBuffers = &raw_command_buffer;
             submit_info.commandBufferCount = 1;
-            vkQueueSubmit(_device->get_graphics_queue(), 1, &submit_info, *submit_fence);// TODO: Error handling
+            if(const auto error = vkQueueSubmit(_device->get_graphics_queue(), 1, &submit_info, *submit_fence); error != VK_SUCCESS) {
+                return kstd::Error {fmt::format("Unable to emit one-time command buffer: {}", platform::get_last_error())};
+            }
+
             if(const auto wait_result = submit_fence.wait_for(); wait_result.is_error()) {
                 return wait_result;
             }

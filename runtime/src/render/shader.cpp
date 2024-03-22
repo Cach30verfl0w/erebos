@@ -20,12 +20,12 @@
 #include "erebos/render/shader.hpp"
 
 namespace erebos::render {
-    Shader::Shader(const vulkan::Device& device, const DXCompiler& compiler, VkShaderStageFlagBits stage) noexcept :
-            Resource {},
-            _device {&device},
-            _shader_compiler {&compiler},
-            _shader {},
-            _stage {stage} {
+    Shader::Shader(const vulkan::Device& device, const DXCompiler& compiler, VkShaderStageFlagBits stage) noexcept
+        : Resource {}
+        , _device {&device}
+        , _shader_compiler {&compiler}
+        , _shader {}
+        , _stage {stage} {
     }
 
     Shader::~Shader() noexcept {
@@ -60,4 +60,4 @@ namespace erebos::render {
         _shader = {shader};
         return {};
     }
-}// namespace libaetherium::render
+}// namespace erebos::render

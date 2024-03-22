@@ -83,14 +83,14 @@ namespace erebos::platform {
      * @author        Cedric Hammes
      * @since         16/03/2024
      */
-    FileMapping::FileMapping(kstd::u8* file_ptr, kstd::usize size) noexcept ://NOLINT
-            _pointer {file_ptr},
-            _size {size} {
+    FileMapping::FileMapping(kstd::u8* file_ptr, kstd::usize size) noexcept
+        : _pointer {file_ptr}
+        , _size {size} {
     }
 
-    FileMapping::FileMapping(platform::FileMapping&& other) noexcept ://NOLINT
-            _pointer {other._pointer},
-            _size {other._size} {
+    FileMapping::FileMapping(platform::FileMapping&& other) noexcept
+        : _pointer {other._pointer}
+        , _size {other._size} {
         other._pointer = nullptr;
     }
 
@@ -116,9 +116,10 @@ namespace erebos::platform {
      * @author     Cedric Hammes
      * @since      15/03/2024
      */
-    File::File(std::filesystem::path path, AccessMode access_mode) :// NOLINT
-            _path {std::move(path)},
-            _access {access_mode} {
+    File::File(std::filesystem::path path, AccessMode access_mode)
+        :// NOLINT
+        _path {std::move(path)}
+        , _access {access_mode} {
         const auto exists = std::filesystem::exists(_path);
         if(!exists && _path.has_parent_path()) {
             if(const auto parent_path = _path.parent_path(); std::filesystem::exists(parent_path)) {
@@ -132,10 +133,10 @@ namespace erebos::platform {
         }
     }
 
-    File::File(File&& other) noexcept :
-            _path {std::move(other._path)},
-            _access {other._access},
-            _handle {other._handle} {
+    File::File(File&& other) noexcept
+        : _path {std::move(other._path)}
+        , _access {other._access}
+        , _handle {other._handle} {
         other._handle = invalid_file_handle;
     }
 

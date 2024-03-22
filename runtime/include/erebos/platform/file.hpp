@@ -40,7 +40,7 @@ namespace erebos::platform {
         kstd::u8* _pointer;
         kstd::usize _size;
 
-    public:
+        public:
 #ifdef PLATFORM_WINDOWS
         /**
          * This constructor fills this class with the pointer to the memory and the size of the
@@ -91,7 +91,7 @@ namespace erebos::platform {
         AccessMode _access;
         FileHandle _handle;
 
-    public:
+        public:
         /**
          * This constructor opens the specified path into a file handle. If that handle is invalid, this function
          * throws a runtime error.

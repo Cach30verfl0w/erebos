@@ -37,7 +37,7 @@ namespace erebos {
         SDL_Window* _window_handle;
         std::vector<std::pair<EventHandlerFunction, void*>> _event_handlers;
 
-    public:
+        public:
         /**
          * This constructor initializes SDL and creates the window with the specified title and the initial
          * bounds.

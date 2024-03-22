@@ -30,16 +30,19 @@ namespace erebos {
      * @author               Cedric Hammes
      * @since                14/03/2024
      */
-    Window::Window(std::string_view title, uint32_t initial_width, uint32_t initial_height) ://NOLINT
-            _event_handlers {} {
+    Window::Window(std::string_view title, uint32_t initial_width, uint32_t initial_height)
+        : _event_handlers {} {
         using namespace std::string_literals;
         if(::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
             throw std::runtime_error {fmt::format("Unable to init SDL: {}", ::SDL_GetError())};
         }
 
         SPDLOG_INFO("Create SDL window '{}' with {}x{} pixels", title, initial_width, initial_height);
-        _window_handle = ::SDL_CreateWindow(title.data(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                            static_cast<int32_t>(initial_width), static_cast<int32_t>(initial_height),
+        _window_handle = ::SDL_CreateWindow(title.data(),
+                                            SDL_WINDOWPOS_UNDEFINED,
+                                            SDL_WINDOWPOS_UNDEFINED,
+                                            static_cast<int32_t>(initial_width),
+                                            static_cast<int32_t>(initial_height),
                                             SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
         if(_window_handle == nullptr) {
             throw std::runtime_error {fmt::format("Unable to init SDL window: {}", ::SDL_GetError())};
@@ -48,9 +51,9 @@ namespace erebos {
         ::SDL_ShowWindow(_window_handle);
     }
 
-    Window::Window(Window&& other) noexcept ://NOLINT
-            _window_handle {other._window_handle},
-            _event_handlers {std::move(other._event_handlers)} {
+    Window::Window(Window&& other) noexcept
+        : _window_handle {other._window_handle}
+        , _event_handlers {std::move(other._event_handlers)} {
         other._window_handle = nullptr;
     }
 

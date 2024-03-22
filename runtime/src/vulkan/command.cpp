@@ -29,14 +29,14 @@ namespace erebos::vulkan {
      * @author               Cedric Hammes
      * @since                14/03/2024
      */
-    CommandBuffer::CommandBuffer(const CommandPool* command_pool, VkCommandBuffer command_buffer) noexcept ://NOLINT
-            _command_pool {command_pool},
-            _command_buffer {command_buffer} {
+    CommandBuffer::CommandBuffer(const CommandPool* command_pool, VkCommandBuffer command_buffer) noexcept
+        : _command_pool {command_pool}
+        , _command_buffer {command_buffer} {
     }
 
-    CommandBuffer::CommandBuffer(CommandBuffer&& other) noexcept :
-            _command_pool {other._command_pool},
-            _command_buffer {other._command_buffer} {
+    CommandBuffer::CommandBuffer(CommandBuffer&& other) noexcept
+        : _command_pool {other._command_pool}
+        , _command_buffer {other._command_buffer} {
         other._command_pool = nullptr;
         other._command_buffer = nullptr;
     }
@@ -86,9 +86,9 @@ namespace erebos::vulkan {
      * @author       Cedric Hammes
      * @since        14/03/2024
      */
-    CommandPool::CommandPool(const Device& device) ://NOLINT
-            _device {&device},
-            _command_pool {} {
+    CommandPool::CommandPool(const Device& device)
+        : _device {&device}
+        , _command_pool {} {
         VkCommandPoolCreateInfo create_info {};
         create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -98,9 +98,9 @@ namespace erebos::vulkan {
         }
     }
 
-    CommandPool::CommandPool(CommandPool&& other) noexcept :
-            _device {other._device},
-            _command_pool {other._command_pool} {
+    CommandPool::CommandPool(CommandPool&& other) noexcept
+        : _device {other._device}
+        , _command_pool {other._command_pool} {
         other._device = nullptr;
         other._command_pool = nullptr;
     }
@@ -120,8 +120,7 @@ namespace erebos::vulkan {
         allocate_info.commandPool = _command_pool;
 
         std::vector<VkCommandBuffer> raw_command_buffers {count};
-        if(const auto err = ::vkAllocateCommandBuffers(**_device, &allocate_info, raw_command_buffers.data());
-           err != VK_SUCCESS) {
+        if(const auto err = ::vkAllocateCommandBuffers(**_device, &allocate_info, raw_command_buffers.data()); err != VK_SUCCESS) {
             return kstd::Error {fmt::format("Unable to allocate {} command buffer: {}", count, vk_strerror(err))};
         }
 

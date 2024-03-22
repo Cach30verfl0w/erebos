@@ -29,7 +29,7 @@ namespace erebos::vulkan {
         std::vector<VkImageView> _image_views;
         uint32_t _current_image_index = 0;
 
-    public:
+        public:
         /**
          * This method initializes the swapchain, acquires the images and creates image views by these acquired
          * images.

@@ -36,7 +36,7 @@ namespace erebos::vulkan {
         VkSurfaceKHR _surface;
         const Window* _window;
 
-    public:
+        public:
         /**
          * This constructor creates a Vulkan instance for this application. If this engine is built in debug mode, this
          * constructor also enables the Vulkan validation layer and the debug utils extension.

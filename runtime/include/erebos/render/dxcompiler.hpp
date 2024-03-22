@@ -56,9 +56,9 @@ namespace erebos::render {
         DXCPointer<IDxcUtils> _dxc_utils;
         DXCPointer<IDxcCompiler3> _dxc_compiler;
 
-    public:
+        public:
         explicit DXCompiler(const std::filesystem::path& path);
         [[nodiscard]] auto compile(const std::vector<kstd::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
-                -> kstd::Result<std::vector<uint32_t>>;
+            -> kstd::Result<std::vector<uint32_t>>;
     };
 }// namespace erebos::render

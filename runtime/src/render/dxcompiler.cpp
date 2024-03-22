@@ -22,10 +22,10 @@
 
 namespace erebos::render {
 
-    DXCompiler::DXCompiler(const std::filesystem::path& path) ://NOLINT
-            _library_loader {platform::LibraryLoader {path.string()}},
-            _dxc_compiler {},
-            _dxc_utils {} {
+    DXCompiler::DXCompiler(const std::filesystem::path& path)
+        : _library_loader {platform::LibraryLoader {path.string()}}
+        , _dxc_compiler {}
+        , _dxc_utils {} {
         // clang-format off
         _DxcCreateInstance =_library_loader.get_function<HRESULT, REFCLSID, REFIID, LPVOID*>("DxcCreateInstance")
                 .get_or_throw();
@@ -42,7 +42,7 @@ namespace erebos::render {
     }
 
     auto DXCompiler::compile(const std::vector<kstd::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
-            -> kstd::Result<std::vector<std::uint32_t>> {
+        -> kstd::Result<std::vector<std::uint32_t>> {
         using namespace std::string_literals;
 
         LPCWSTR profile;
@@ -56,8 +56,7 @@ namespace erebos::render {
             profile = L"ps_6_8";
         }
         else {
-            return kstd::Error {fmt::format("Unable to compile HLSL shader: Invalid shader flags {}",
-                                            static_cast<uint32_t>(shader_stage))};
+            return kstd::Error {fmt::format("Unable to compile HLSL shader: Invalid shader flags {}", static_cast<uint32_t>(shader_stage))};
         }
 
         // clang-format off
@@ -81,4 +80,4 @@ namespace erebos::render {
         const auto pointer = static_cast<uint32_t*>(output_object->GetBufferPointer());
         return {{pointer, pointer + (output_object->GetBufferSize() / sizeof(uint32_t))}};
     }
-}// namespace libaetherium::render
+}// namespace erebos::render

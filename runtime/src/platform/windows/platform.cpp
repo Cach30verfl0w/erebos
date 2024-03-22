@@ -30,9 +30,14 @@ namespace erebos::platform {
 
         LPWSTR buffer = nullptr;
         constexpr auto lang_id = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
-        const auto new_length = ::FormatMessageW(
-                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-                error_code, lang_id, reinterpret_cast<LPWSTR>(&buffer), 0, nullptr);
+        const auto new_length =
+            ::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                             nullptr,
+                             error_code,
+                             lang_id,
+                             reinterpret_cast<LPWSTR>(&buffer),
+                             0,
+                             nullptr);
         auto message = kstd::utils::to_mbs({buffer, new_length});
         LocalFree(buffer);
         return message;

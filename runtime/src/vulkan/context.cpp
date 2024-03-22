@@ -28,13 +28,13 @@ namespace erebos::vulkan {
      * @author       Cedric Hammes
      * @since        14/03/2024
      */
-    VulkanContext::VulkanContext(const Window& window) ://NOLINT
-            _instance {},
-            _surface {},
-            _window {&window} {
+    VulkanContext::VulkanContext(const Window& window)
+        : _instance {}
+        , _surface {}
+        , _window {&window} {
         const std::vector<const char*> enabled_layers = {
 #ifdef BUILD_DEBUG
-                "VK_LAYER_KHRONOS_validation"
+            "VK_LAYER_KHRONOS_validation"
 #endif
         };
 
@@ -47,8 +47,10 @@ namespace erebos::vulkan {
         if(const auto err = vkEnumerateInstanceVersion(&version); err != VK_SUCCESS) {
             throw std::runtime_error {fmt::format("Unable to get instance version: {}", vk_strerror(err))};
         }
-        SPDLOG_INFO("Detected Vulkan API Version {}.{}.{}", VK_API_VERSION_MAJOR(version),
-                    VK_API_VERSION_MINOR(version), VK_API_VERSION_PATCH(version));
+        SPDLOG_INFO("Detected Vulkan API Version {}.{}.{}",
+                    VK_API_VERSION_MAJOR(version),
+                    VK_API_VERSION_MINOR(version),
+                    VK_API_VERSION_PATCH(version));
 
         // Get SDL window vulkan extensions
         uint32_t window_ext_count = 0;
@@ -76,8 +78,7 @@ namespace erebos::vulkan {
         instance_create_info.ppEnabledExtensionNames = extensions.data();
         instance_create_info.enabledLayerCount = enabled_layers.size();
         instance_create_info.ppEnabledLayerNames = enabled_layers.data();
-        SPDLOG_INFO("Create Vulkan context instance with {} extension(s) and {} layer(s)", extensions.size(),
-                    enabled_layers.size());
+        SPDLOG_INFO("Create Vulkan context instance with {} extension(s) and {} layer(s)", extensions.size(), enabled_layers.size());
         if(const auto err = ::vkCreateInstance(&instance_create_info, nullptr, &_instance); err != VK_SUCCESS) {
             throw std::runtime_error {fmt::format("Unable to create Vulkan instance: {}", vk_strerror(err))};
         }
@@ -89,10 +90,10 @@ namespace erebos::vulkan {
         }
     }
 
-    VulkanContext::VulkanContext(VulkanContext&& other) noexcept ://NOLINT
-            _instance {other._instance},
-            _surface {other._surface},
-            _window {other._window} {
+    VulkanContext::VulkanContext(VulkanContext&& other) noexcept
+        : _instance {other._instance}
+        , _surface {other._surface}
+        , _window {other._window} {
         other._instance = nullptr;
         other._surface = nullptr;
         other._window = nullptr;

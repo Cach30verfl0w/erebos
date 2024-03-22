@@ -20,11 +20,11 @@
 #include "erebos/vulkan/swapchain.hpp"
 
 namespace erebos::vulkan {
-    Swapchain::Swapchain(const VulkanContext& context, const Device& device) ://NOLINT
-            _device {&device},
-            _swapchain {},
-            _images {},
-            _image_views {} {
+    Swapchain::Swapchain(const VulkanContext& context, const Device& device)
+        : _device {&device}
+        , _swapchain {}
+        , _images {}
+        , _image_views {} {
         int32_t width = 0;
         int32_t height = 1;
         ::SDL_GetWindowSize(**context.get_window(), &width, &height);
@@ -56,8 +56,7 @@ namespace erebos::vulkan {
 
         _images.resize(image_count);
         _image_views.resize(image_count);
-        if(const auto err = ::vkGetSwapchainImagesKHR(*device, _swapchain, &image_count, _images.data());
-           err != VK_SUCCESS) {
+        if(const auto err = ::vkGetSwapchainImagesKHR(*device, _swapchain, &image_count, _images.data()); err != VK_SUCCESS) {
             throw std::runtime_error {fmt::format("Unable to get swapchain images: {}", vk_strerror(err))};
         }
 
@@ -76,18 +75,17 @@ namespace erebos::vulkan {
             image_view_info.subresourceRange.levelCount = 1;
             image_view_info.subresourceRange.baseArrayLayer = 0;
             image_view_info.subresourceRange.layerCount = 1;
-            if(const auto err = ::vkCreateImageView(*device, &image_view_info, nullptr, _image_views.data() + i);
-               err != VK_SUCCESS) {
+            if(const auto err = ::vkCreateImageView(*device, &image_view_info, nullptr, _image_views.data() + i); err != VK_SUCCESS) {
                 throw std::runtime_error {fmt::format("Unable to create image view from image: {}", vk_strerror(err))};
             }
         }
     }
 
-    Swapchain::Swapchain(Swapchain&& other) noexcept :
-            _device {other._device},
-            _swapchain {other._swapchain},
-            _images {std::move(other._images)},
-            _image_views {std::move(other._image_views)} {
+    Swapchain::Swapchain(Swapchain&& other) noexcept
+        : _device {other._device}
+        , _swapchain {other._swapchain}
+        , _images {std::move(other._images)}
+        , _image_views {std::move(other._image_views)} {
         other._device = nullptr;
         other._swapchain = nullptr;
         other._image_views = {};
@@ -108,8 +106,12 @@ namespace erebos::vulkan {
     }
 
     auto Swapchain::next_image(VkSemaphore image_available_semaphore) noexcept -> kstd::Result<void> {
-        const auto err = vkAcquireNextImageKHR(**_device, _swapchain, std::numeric_limits<uint64_t>::max(),
-                                               image_available_semaphore, VK_NULL_HANDLE, &_current_image_index);
+        const auto err = vkAcquireNextImageKHR(**_device,
+                                               _swapchain,
+                                               std::numeric_limits<uint64_t>::max(),
+                                               image_available_semaphore,
+                                               VK_NULL_HANDLE,
+                                               &_current_image_index);
         if(err != VK_SUCCESS) {
             return kstd::Error {fmt::format("Unable to acquire next image: {}", vk_strerror(err))};
         }

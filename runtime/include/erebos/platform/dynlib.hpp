@@ -30,10 +30,11 @@ namespace erebos::platform {
         std::string _name;
         ModuleHandle _handle;
 
-    public:
-        LibraryLoader() ://NOLINT
-                _name {},
-                _handle {invalid_module_handle} {
+        public:
+        LibraryLoader()
+            ://NOLINT
+            _name {}
+            , _handle {invalid_module_handle} {
         }
 
         /**
@@ -85,7 +86,7 @@ namespace erebos::platform {
 
         auto operator=(LibraryLoader&& other) noexcept -> LibraryLoader&;
 
-    private:
+        private:
         [[nodiscard]] auto get_function_address(const std::string& name) noexcept -> kstd::Result<void*>;
     };
 }// namespace erebos::platform

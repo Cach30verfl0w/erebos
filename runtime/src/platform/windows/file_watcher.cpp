@@ -56,27 +56,36 @@ namespace erebos::platform {
         }
     }// namespace
 
-    FileWatcher::FileWatcher(std::filesystem::path base_path) ://NOLINT
-            _base_path {std::move(base_path)},
-            _overlapped {},
-            _is_running {true},
-            _event_queue_mutex {},
-            _event_queue {},
-            _event_buffer {} {
+    FileWatcher::FileWatcher(std::filesystem::path base_path)
+        : _base_path {std::move(base_path)}
+        , _overlapped {}
+        , _is_running {true}
+        , _event_queue_mutex {}
+        , _event_queue {}
+        , _event_buffer {} {
         _overlapped.hEvent = ::CreateEvent(nullptr, true, false, nullptr);
-        _handle = ::CreateFile(_base_path.string().c_str(), FILE_LIST_DIRECTORY,
-                               FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING,
-                               FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, nullptr);
+        _handle = ::CreateFile(_base_path.string().c_str(),
+                               FILE_LIST_DIRECTORY,
+                               FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                               nullptr,
+                               OPEN_EXISTING,
+                               FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+                               nullptr);
         if(_handle == invalid_file_watcher_handle) {
             throw std::runtime_error {fmt::format("Unable to create file watcher: {}", get_last_error())};
         }
 
         _file_watcher_thread = std::thread {[&]() {
             while(_is_running) {
-                if(!::ReadDirectoryChangesW(_handle, _event_buffer.data(), _event_buffer.size(), true,
-                                            FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME |
-                                                    FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_SIZE,
-                                            nullptr, &_overlapped, nullptr)) {
+                if(!::ReadDirectoryChangesW(_handle,
+                                            _event_buffer.data(),
+                                            _event_buffer.size(),
+                                            true,
+                                            FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_CREATION |
+                                                FILE_NOTIFY_CHANGE_SIZE,
+                                            nullptr,
+                                            &_overlapped,
+                                            nullptr)) {
                     SPDLOG_INFO("Failed to handle file event in folder {}: {}", _base_path.string(), get_last_error());
                     continue;
                 }
@@ -87,8 +96,7 @@ namespace erebos::platform {
                 }
 
                 if(status != WAIT_OBJECT_0) {
-                    SPDLOG_ERROR("Failed to handle file event in folder {} {}: {}", status, _base_path.string(),
-                                 get_last_error());
+                    SPDLOG_ERROR("Failed to handle file event in folder {} {}: {}", status, _base_path.string(), get_last_error());
                     continue;
                 }
 
@@ -112,14 +120,14 @@ namespace erebos::platform {
         }};
     }
 
-    FileWatcher::FileWatcher(FileWatcher&& other) noexcept :
-            _handle {other._handle},
-            _base_path {std::move(other._base_path)},
-            _file_watcher_thread {std::move(other._file_watcher_thread)},
-            _overlapped {other._overlapped},
-            _event_queue {std::move(other._event_queue)},
-            _event_queue_mutex {},
-            _event_buffer {other._event_buffer} {
+    FileWatcher::FileWatcher(FileWatcher&& other) noexcept
+        : _handle {other._handle}
+        , _base_path {std::move(other._base_path)}
+        , _file_watcher_thread {std::move(other._file_watcher_thread)}
+        , _overlapped {other._overlapped}
+        , _event_queue {std::move(other._event_queue)}
+        , _event_queue_mutex {}
+        , _event_buffer {other._event_buffer} {
         _handle = invalid_file_watcher_handle;
         _is_running = true;
     }

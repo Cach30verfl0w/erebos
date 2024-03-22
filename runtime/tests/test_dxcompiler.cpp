@@ -17,8 +17,8 @@
  * @since  20/03/2024
  */
 
-#include <gtest/gtest.h>
 #include <erebos/render/dxcompiler.hpp>
+#include <gtest/gtest.h>
 
 TEST(erebos_render_DXCompiler, test_compile) {
 #ifdef PLATFORM_UNIX

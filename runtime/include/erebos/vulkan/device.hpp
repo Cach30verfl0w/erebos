@@ -34,7 +34,7 @@ namespace erebos::vulkan {
         VkQueue _queue;
         VmaAllocator _allocator;
 
-    public:
+        public:
         /**
          * This constructor creates a virtual device handle by the specified physical device handle. After that, the
          * Vulkan memory allocator gets initialized.

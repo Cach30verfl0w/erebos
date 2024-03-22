@@ -22,17 +22,17 @@
 #include "erebos/platform/dynlib.hpp"
 
 namespace erebos::platform {
-    LibraryLoader::LibraryLoader(std::string name) ://NOLINT
-            _name {std::move(name)} {
+    LibraryLoader::LibraryLoader(std::string name)
+        : _name {std::move(name)} {
         _handle = ::dlopen(_name.c_str(), RTLD_LAZY);
         if(_handle == invalid_module_handle) {
             throw std::runtime_error {fmt::format("Unable to open library '{}': {}", _name, get_last_error())};
         }
     }
 
-    LibraryLoader::LibraryLoader(LibraryLoader&& other) noexcept :
-            _name {std::move(other._name)},
-            _handle {std::move(other._handle)} {
+    LibraryLoader::LibraryLoader(LibraryLoader&& other) noexcept
+        : _name {std::move(other._name)}
+        , _handle {std::move(other._handle)} {
         other._handle = invalid_module_handle;
     }
 

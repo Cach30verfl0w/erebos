@@ -19,6 +19,4 @@
 
 #pragma once
 
-namespace libaetherium::render {
-    
-}
+namespace libaetherium::render {}

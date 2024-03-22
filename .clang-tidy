@@ -3,7 +3,6 @@ Checks: '
 readability-*,
 -readability-magic-numbers,
 modernize-*,
--modernize-use-noexcept,
 -modernize-use-trailing-return-type,
 -modernize-use-default-member-init,
 cppcoreguidelines-*,
@@ -50,17 +49,27 @@ CheckOptions: # @formatter:off
   - key:    readability-identifier-naming.ConstantParameterCase
     value:  lower_case
   - key:    readability-identifier-naming.ClassConstantCase
-    value:  lower_case
+    value:  UPPER_CLASS
   - key:    readability-identifier-naming.StaticConstantCase
-    value:  lower_case
+    value:  UPPER_CLASS
   - key:    readability-identifier-naming.StaticVariableCase
     value:  lower_case
-  - key:    readability-identifier-naming.StaticVariablePrefix
-    value:  's_'
   - key:    readability-identifier-naming.LocalConstantCase
-    value:  lower_case
+    value:  UPPER_CLASS
   - key:    readability-identifier-naming.TypedefCase
     value:  CamelCase
   - key:    readability-identifier-naming.TypeAliasCase
     value:  CamelCase
+  - key:    readability-identifier-naming.TemplateParameterCase
+    value:  CamelCase
+  - key:    readability-identifier-naming.TemplateParameterPrefix
+    value:  'T'
+  - key:    readability-identifier-naming.TemplateTemplateParameterCase
+    value:  CamelCase
+  - key:    readability-identifier-naming.TemplateTemplateParameterPrefix
+    value:  'T'
+  - key:    readability-identifier-naming.ValueTemplateParameterCase
+    value:  CamelCase
+  - key:    readability-identifier-naming.ValueTemplateParameterPrefix
+    value:  'T'
     # @formatter:on

@@ -20,12 +20,13 @@
 #include "erebos/resource/resource_manager.hpp"
 
 namespace erebos::resource {
-    ResourceManager::ResourceManager(const std::filesystem::path& assets_folder) ://NOLINT
-            _file_watcher {assets_folder},
-            _assets_folder {assets_folder} {
+    ResourceManager::ResourceManager(const std::filesystem::path& assets_folder)
+        ://NOLINT
+        _file_watcher {assets_folder}
+        , _assets_folder {assets_folder} {
         if(!std::filesystem::exists(_assets_folder)) {
-            throw std::runtime_error {fmt::format("Unable to initialize resource manager: Folder '{}' doesn't exists",
-                                                  _assets_folder.string())};
+            throw std::runtime_error {
+                fmt::format("Unable to initialize resource manager: Folder '{}' doesn't exists", _assets_folder.string())};
         }
         SPDLOG_INFO("Initializing resource manager in directory '{}'", _assets_folder.string());
     }
@@ -62,16 +63,17 @@ namespace erebos::resource {
                     }
 
                     const auto reload_result = resource->second->reload(**memory_map, memory_map->get_size());
-                    if (!reload_result) {
+                    if(!reload_result) {
                         SPDLOG_ERROR("Fail while reload resources -> {}", reload_result.get_error());
                         break;
                     }
                     break;
                 }
-                default: break;
+                default:
+                    break;
             }
             return {};
         });
         return {};
     }
-}// namespace libaetherium::resource
+}// namespace erebos::resource

@@ -24,7 +24,7 @@
 
 namespace erebos::resource {
     class Resource {
-    public:
+        public:
         Resource() noexcept = default;
         virtual ~Resource() noexcept = default;
 
@@ -38,7 +38,7 @@ namespace erebos::resource {
         std::filesystem::path _assets_folder;
         std::unordered_map<std::string, std::shared_ptr<Resource>> _loaded_resources;
 
-    public:
+        public:
         explicit ResourceManager(const std::filesystem::path& assets_folder);
         ~ResourceManager() noexcept = default;
 
@@ -51,8 +51,7 @@ namespace erebos::resource {
             // Check if resource exists on file system
             const auto filesystem_path = _assets_folder / path;
             if(!std::filesystem::exists(filesystem_path)) {
-                return kstd::Error {
-                        fmt::format("Unable to find resource '{}': Resource not existing on filesystem", path)};
+                return kstd::Error {fmt::format("Unable to find resource '{}': Resource not existing on filesystem", path)};
             }
 
             // Return resource ptr when found
@@ -81,8 +80,7 @@ namespace erebos::resource {
 
             const auto reload_result = resource.get()->reload(**mapping, mapping->get_size());
             if(!reload_result) {
-                SPDLOG_ERROR("Unable to reload resource '{}' -> {}", filesystem_path.string(),
-                             reload_result.get_error());
+                SPDLOG_ERROR("Unable to reload resource '{}' -> {}", filesystem_path.string(), reload_result.get_error());
             }
 
             _loaded_resources.insert(std::pair(filesystem_path.string(), *resource));
