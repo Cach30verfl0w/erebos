@@ -71,6 +71,24 @@ else ()
     message(FATAL_ERROR "Unsupported platform '${CMAKE_SYSTEM_NAME}'")
 endif ()
 
+# Detect compiler
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(COMPILER_CLANG TRUE)
+    add_compile_definitions(COMPILER_CLANG)
+    message(STATUS "Detected Clang compiler")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(COMPILER_GCC TRUE)
+    add_compile_definitions(COMPILER_GCC)
+    message(STATUS "Detected GCC compiler")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(COMPILER_MSVC TRUE)
+    add_compile_options("/Zc:__cplusplus" "/utf-8")
+    add_compile_definitions(COMPILER_MSVC)
+    message(STATUS "Detected MSVC compiler")
+else ()
+    message(FATAL_ERROR "Unsupported compiler '${CMAKE_CXX_COMPILER_ID}'")
+endif ()
+
 # Detect build type
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(BUILD_DEBUG)
@@ -96,7 +114,7 @@ endif ()
 
 # Use mold
 find_program(CMX_MOLD_EXECUTABLE "mold")
-if (CMX_MOLD_EXECUTABLE) # mold doesn't work with Clang properly yet..
+if (CMX_MOLD_EXECUTABLE AND NOT COMPILER_CLANG) # mold doesn't work with Clang properly yet..
     message(STATUS "Detected mold linker, substituting")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=mold")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=mold")
@@ -136,18 +154,19 @@ FetchContent_Declare(
         GIT_TAG v1.x)
 FetchContent_Populate(spdlog)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/runtime/CMakeLists.txt)
-include(${CMAKE_CURRENT_SOURCE_DIR}/editor/CMakeLists.txt)
-
 # Move files
 if (PLATFORM_WINDOWS)
     set(EXTERN_DXCOMPILER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/extern/dxcompiler/windows/${ARCH}/dxcompiler.dll")
-    set(EXTERN_DXCOMPILER_LIB_FILE "dxcompiler.dll")
+    set(EXTERN_DXCOMPILER_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/dxcompiler.dll")
 elseif (PLATFORM_UNIX)
     set(EXTERN_DXCOMPILER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/extern/dxcompiler/linux/libdxcompiler.so")
-    set(EXTERN_DXCOMPILER_LIB_FILE "libdxcompiler.so")
+    set(EXTERN_DXCOMPILER_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/libdxcompiler.so")
 else ()
     message(FATAL_ERROR "Unsupported platform")
 endif ()
-message("${EXTERN_DXCOMPILER_LIBRARY}")
-configure_file("${EXTERN_DXCOMPILER_LIBRARY}" "${CMAKE_CURRENT_BINARY_DIR}/${EXTERN_DXCOMPILER_LIB_FILE}" USE_SOURCE_PERMISSIONS COPYONLY)
+configure_file("${EXTERN_DXCOMPILER_LIBRARY}" "${EXTERN_DXCOMPILER_LIB_FILE}" USE_SOURCE_PERMISSIONS COPYONLY)
+
+# Include projects
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/runtime/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/editor/CMakeLists.txt)

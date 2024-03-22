@@ -83,9 +83,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(volk)
 
-target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/volk-src/include")
 target_link_libraries(erebos PUBLIC volk)
-target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/volk-src/include")
 target_link_libraries(erebos-static PUBLIC volk)
 
 # Add Vulkan Memory Allocator
@@ -97,10 +95,30 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(vk_mem_alloc)
 
-target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/vk_mem_alloc-src/include")
 target_link_libraries(erebos PUBLIC VulkanMemoryAllocator)
-target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/vk_mem_alloc-src/include")
 target_link_libraries(erebos-static PUBLIC VulkanMemoryAllocator)
+
+# Add RenderPipelineShaders
+FetchContent_Declare(
+        renderpipelineshaders
+        GIT_REPOSITORY https://github.com/projectKML/renderpipelineshaders
+        GIT_TAG main
+        GIT_PROGRESS true
+)
+FetchContent_MakeAvailable(renderpipelineshaders)
+
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/renderpipelineshaders-src/include")
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/renderpipelineshaders-src/include")
+target_link_libraries(erebos PUBLIC rps_core)
+target_link_libraries(erebos-static PUBLIC rps_core)
+target_link_libraries(erebos PUBLIC rps_frontend)
+target_link_libraries(erebos-static PUBLIC rps_frontend)
+target_link_libraries(erebos PUBLIC rps_runtime)
+target_link_libraries(erebos-static PUBLIC rps_runtime)
+target_link_libraries(erebos PUBLIC rps_runtime_vk)
+target_link_libraries(erebos-static PUBLIC rps_runtime_vk)
+target_link_libraries(erebos PUBLIC rps_runtime_vkdyn)
+target_link_libraries(erebos-static PUBLIC rps_runtime_vkdyn)
 
 # Add gtest to liberebos-test
 FetchContent_Declare(
