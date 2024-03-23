@@ -97,6 +97,7 @@ FetchContent_MakeAvailable(vk_mem_alloc)
 
 target_link_libraries(erebos PUBLIC VulkanMemoryAllocator)
 target_link_libraries(erebos-static PUBLIC VulkanMemoryAllocator)
+add_compile_definitions(VMA_STATIC_VULKAN_FUNCTIONS=0 VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
 
 # Add RenderPipelineShaders
 FetchContent_Declare(
@@ -105,18 +106,14 @@ FetchContent_Declare(
         GIT_TAG main
         GIT_PROGRESS true
 )
+set(RpsBuildExamples OFF)
+set(RpsBuildTools OFF)
+set(RpsBuildTests OFF)
+set(RpsEnableImGui OFF)
 FetchContent_MakeAvailable(renderpipelineshaders)
 
 target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/renderpipelineshaders-src/include")
 target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/renderpipelineshaders-src/include")
-target_link_libraries(erebos PUBLIC rps_core)
-target_link_libraries(erebos-static PUBLIC rps_core)
-target_link_libraries(erebos PUBLIC rps_frontend)
-target_link_libraries(erebos-static PUBLIC rps_frontend)
-target_link_libraries(erebos PUBLIC rps_runtime)
-target_link_libraries(erebos-static PUBLIC rps_runtime)
-target_link_libraries(erebos PUBLIC rps_runtime_vk)
-target_link_libraries(erebos-static PUBLIC rps_runtime_vk)
 target_link_libraries(erebos PUBLIC rps_runtime_vkdyn)
 target_link_libraries(erebos-static PUBLIC rps_runtime_vkdyn)
 

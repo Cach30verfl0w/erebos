@@ -22,8 +22,9 @@
 #include "erebos/vulkan/context.hpp"
 #include <kstd/defaults.hpp>
 #include <kstd/result.hpp>
-#define VMA_STATIC_VULKAN_FUNCTIONS 0
-#define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
+#include <mimalloc.h>
+#include <rps/rps.h>
+#include <rps/runtime/vk/rps_vk_runtime.h>
 #include <vk_mem_alloc.h>
 #include <volk.h>
 
@@ -32,6 +33,7 @@ namespace erebos::vulkan {
         VkPhysicalDevice _phy_device;
         VkDevice _device;
         VkQueue _queue;
+        RpsDevice _runtime_device;
         VmaAllocator _allocator;
 
         public:
