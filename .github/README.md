@@ -14,6 +14,7 @@ This projects contains a few dependencies to work. Below this text is an enumera
 | [Google Test](https://github.com/google/googletest) | [Google](https://github.com/google) | [BSD 3-Clause License](https://github.com/google/googletest/blob/main/LICENSE) |
 | [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator) | [GPUOpen Libraries & SDKs](https://github.com/GPUOpen-LibrariesAndSDKs) | [MIT License](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator?tab=MIT-1-ov-file) |
 | [DirectXShaderCompiler](https://github.com/microsoft/DirectXShaderCompiler) | [Microsoft](https:/github.com/microsoft) | [LLVM Release License](https://github.com/microsoft/DirectXShaderCompiler/blob/main/LICENSE.TXT) |
+| [RenderPipelineShaders](https://github.com/GPUOpen-LibrariesAndSDKs/RenderPipelineShaders) | Advanced Micro Devices, Inc. | [Advanced Micro Devices, Inc. Internal Evaluation License](https://github.com/GPUOpen-LibrariesAndSDKs/RenderPipelineShaders/tree/main?tab=License-1-ov-file#readme) |
 
 ## License
 This full project is licensed under [Apache 2.0 License](https://github.com/Cach30verfl0w/erebos/?tab=Apache-2.0-1-ov-file#readme). Please follow this license and respect my work to this.
