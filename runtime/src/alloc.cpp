@@ -14,10 +14,28 @@
 
 #include <mimalloc.h>
 
-void* operator new(size_t size) {
+// NOLINTBEGIN
+void* operator new(const size_t size) {
     return mi_malloc(size);
 }
 
-void operator delete(void* ptr) {
-    mi_free(ptr);
+void* operator new[](const size_t size) {
+    return mi_malloc(size);
 }
+
+void* operator new(const size_t size, std::align_val_t alignment) {
+    return mi_malloc_aligned(size, static_cast<size_t>(alignment));
+}
+
+void* operator new[](const size_t size, std::align_val_t alignment) {
+    return mi_malloc_aligned(size, static_cast<size_t>(alignment));
+}
+
+void operator delete(void* memory) {
+    mi_free(memory);
+}
+
+void operator delete[](void* memory) {
+    mi_free(memory);
+}
+// NOLINTEND

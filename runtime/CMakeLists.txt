@@ -3,6 +3,7 @@ project(runtime)
 
 file(GLOB_RECURSE RUNTIME_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/src/*.c*")
 
+option(EREBOS_RUNTIME_COMPILE_TESTS "Compile Tests of Erebos Runtime" ON)
 
 # Configure libraries
 message("Configure liberebos")
@@ -128,8 +129,10 @@ enable_testing(TRUE)
 include(GoogleTest)
 
 # Add tests
-file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/tests/*.c*")
-add_executable(erebos-tests ${TEST_SOURCES})
-gtest_discover_tests(erebos-tests)
-target_link_libraries(erebos-tests PUBLIC gtest_main)
-target_link_libraries(erebos-tests PUBLIC erebos-static)
+if (EREBOS_RUNTIME_COMPILE_TESTS)
+    file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/tests/*.c*")
+    add_executable(erebos-tests ${TEST_SOURCES})
+    gtest_discover_tests(erebos-tests)
+    target_link_libraries(erebos-tests PUBLIC gtest_main)
+    target_link_libraries(erebos-tests PUBLIC erebos-static)
+endif ()
