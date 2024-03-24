@@ -179,7 +179,6 @@ namespace erebos::vulkan {
         vk_runtime_device_create_info.hVkDevice = _device;
         vk_runtime_device_create_info.hVkPhysicalDevice = _phy_device;
         vk_runtime_device_create_info.pVkFunctions = &rps_vulkan_functions;
-        _runtime_device = nullptr;
         if(const auto error = rpsVKRuntimeDeviceCreate(&vk_runtime_device_create_info, &_runtime_device); error < 0) {
             throw std::runtime_error {fmt::format("Unable to initialize RPS device: {}", rps_strerror(error))};
         }
@@ -252,13 +251,13 @@ namespace erebos::vulkan {
             _runtime_device = nullptr;
         }
 
-        if(_allocator == nullptr) {
+        if(_allocator != nullptr) {
             ::vmaDestroyAllocator(_allocator);
             _allocator = nullptr;
         }
 
         if(_device != nullptr) {
-            ::vkDestroyDevice(_device, nullptr);
+            ::vkDestroyDevice(_device, nullptr); // TODO: SIGABORT WTF?
             _device = nullptr;
         }
     }

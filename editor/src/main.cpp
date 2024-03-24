@@ -23,6 +23,15 @@
 #include <erebos/window.hpp>
 #include <kstd/safe_alloc.hpp>
 #include <spdlog/spdlog.h>
+#include <rps/core/rps_api.h>
+
+RPS_DECLARE_RPSL_ENTRY(main, main)
+
+auto render(SDL_Event& event, void* pointer) -> kstd::Result<void> {
+    auto* render_graph = static_cast<RpsRenderGraph*>(pointer);
+    // TODO: Do stuff
+    return {};
+}
 
 auto main(int argc, char* argv[]) -> int {
     cxxopts::Options options {"aetherium-editor"};
@@ -59,10 +68,26 @@ auto main(int argc, char* argv[]) -> int {
         return -1;
     }
 
+    // Init render graph TODO: Remove
+    RpsRpslEntry entry = RPS_ENTRY_REF(main, main);
+    RpsRenderGraphCreateInfo render_graph_create_info {};
+    std::array<RpsQueueFlags, 3> flags = {RPS_QUEUE_FLAG_GRAPHICS, RPS_QUEUE_FLAG_COMPUTE, RPS_QUEUE_FLAG_COPY};
+    render_graph_create_info.scheduleInfo.pQueueInfos = flags.data();
+    render_graph_create_info.scheduleInfo.numQueues = 1;
+    render_graph_create_info.mainEntryCreateInfo.hRpslEntryPoint = entry;
+    RpsRenderGraph render_graph {};
+    SPDLOG_INFO("Create Render Graph");
+    if (RPS_FAILED(rpsRenderGraphCreate(device->get_rps_device(), &render_graph_create_info, &render_graph))) {
+        SPDLOG_ERROR("Unable to create render graph");
+        return -1;
+    }
+
     SPDLOG_INFO("Entering window event loop");
+    window->add_event_handler(render, &render_graph);
     if(const auto result = window->run_loop(); result.is_error()) {
         SPDLOG_ERROR("{}", result.get_error());
         return -1;
     }
+    rpsRenderGraphDestroy(render_graph);
     return 0;
 }

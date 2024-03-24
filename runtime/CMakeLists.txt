@@ -5,6 +5,18 @@ file(GLOB_RECURSE RUNTIME_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/src/
 
 option(EREBOS_RUNTIME_COMPILE_TESTS "Compile Tests of Erebos Runtime" ON)
 
+# RPS
+FetchContent_Declare(
+        rps
+        GIT_REPOSITORY https://github.com/projectKML/renderpipelineshaders
+        GIT_TAG main
+        GIT_PROGRESS true
+)
+set(RpsBuildExamples OFF)
+set(RpsBuildTests OFF)
+set(RpsEnableImGui OFF)
+FetchContent_MakeAvailable(rps)
+
 # Configure libraries
 message("Configure liberebos")
 add_library(erebos SHARED ${RUNTIME_SOURCE_FILES})
@@ -101,20 +113,8 @@ target_link_libraries(erebos-static PUBLIC VulkanMemoryAllocator)
 add_compile_definitions(VMA_STATIC_VULKAN_FUNCTIONS=0 VMA_DYNAMIC_VULKAN_FUNCTIONS=0)
 
 # Add RenderPipelineShaders
-FetchContent_Declare(
-        renderpipelineshaders
-        GIT_REPOSITORY https://github.com/projectKML/renderpipelineshaders
-        GIT_TAG main
-        GIT_PROGRESS true
-)
-set(RpsBuildExamples OFF)
-set(RpsBuildTools OFF)
-set(RpsBuildTests OFF)
-set(RpsEnableImGui OFF)
-FetchContent_MakeAvailable(renderpipelineshaders)
-
-target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/renderpipelineshaders-src/include")
-target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/renderpipelineshaders-src/include")
+target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/rps-src/include")
+target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/rps-src/include")
 target_link_libraries(erebos PUBLIC rps_runtime_vkdyn)
 target_link_libraries(erebos-static PUBLIC rps_runtime_vkdyn)
 

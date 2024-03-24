@@ -94,6 +94,10 @@ namespace erebos::vulkan {
             return _phy_device;
         }
 
+        [[nodiscard]] inline auto get_rps_device() const noexcept -> RpsDevice {
+            return _runtime_device;
+        }
+
         /**
          * This function returns a raw handle to the vulkan virtual
          * device.

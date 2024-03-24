@@ -97,6 +97,8 @@ namespace erebos {
                     }
                 }
             }
+
+            // TODO: Do render after event fetch
         }
         return {};
     }
