@@ -34,7 +34,11 @@ namespace erebos::vulkan {
         const Device* _device;
         VkFence _fence;
 
-        public:
+    public:
+        constexpr Fence() noexcept
+            : _device {nullptr}
+            , _fence {nullptr} {
+        }
         /**
          * This constructor creates a new fence on the specified device. This function throws an exception when the
          * creation doesn't works.
@@ -63,6 +67,10 @@ namespace erebos::vulkan {
         [[nodiscard]] auto
         wait_for(const std::chrono::duration<Rep, Period>& timeout = std::chrono::duration<Rep, Period>::max()) const noexcept
             -> VoidResult {
+            if (_device == nullptr || _fence == nullptr) {
+                return {};
+            }
+
             const auto timeout_millis = std::chrono::duration_cast<std::chrono::milliseconds>(timeout).count();
             if(const auto err = vkWaitForFences(**_device, 1, &_fence, true, timeout_millis); err != VK_SUCCESS) {
                 return kstd::Error {fmt::format("Unable to wait for fence: {}", vk_strerror(err))};

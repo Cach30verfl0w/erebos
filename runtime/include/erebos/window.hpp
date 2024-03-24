@@ -31,11 +31,13 @@
 #endif
 
 namespace erebos {
-    using EventHandlerFunction = std::function<kstd::Result<void>(SDL_Event& event, void* data)>;
+    using EventCallbackFunction = std::function<kstd::Result<void>(SDL_Event& event, void* data)>;
+    using RenderCallbackFunction = std::function<kstd::Result<void>(void* data)>;
 
     class Window final {
         SDL_Window* _window_handle;
-        std::vector<std::pair<EventHandlerFunction, void*>> _event_handlers;
+        std::vector<std::pair<EventCallbackFunction, void*>> _event_callback_list;
+        std::vector<std::pair<RenderCallbackFunction, void*>> _render_callback_list;
 
         public:
         /**
@@ -61,8 +63,12 @@ namespace erebos {
          */
         ~Window() noexcept;
 
-        inline auto add_event_handler(EventHandlerFunction handler_function, void* data_ptr) noexcept -> void {
-            _event_handlers.push_back(std::pair(handler_function, data_ptr));
+        inline auto add_event_callback(const EventCallbackFunction& callback_function, void* data_ptr) noexcept -> void {
+            _event_callback_list.emplace_back(callback_function, data_ptr);
+        }
+
+        inline auto add_render_callback(const RenderCallbackFunction& callback_function, void* data_ptr) noexcept -> void {
+            _render_callback_list.emplace_back(callback_function, data_ptr);
         }
 
         /**

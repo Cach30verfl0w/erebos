@@ -50,6 +50,14 @@ namespace erebos::vulkan {
             return _current_image_index;
         }
 
+        [[nodiscard]] inline auto images() const noexcept -> const std::vector<VkImage>& {
+            return _images;
+        }
+
+        [[nodiscard]] inline auto image_views() const noexcept -> const std::vector<VkImageView>& {
+            return _image_views;
+        }
+
         [[nodiscard]] inline auto current_image() const noexcept -> VkImage {
             return _images.at(_current_image_index);
         }

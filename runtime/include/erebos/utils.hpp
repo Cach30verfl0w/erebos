@@ -20,9 +20,9 @@
 #pragma once
 #define RPS_VK_DYNAMIC_LOADING 1
 #include <kstd/result.hpp>
+#include <rps/rps.h>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
-#include <rps/rps.h>
 #include <string>
 #include <vector>
 #include <volk.h>
@@ -88,59 +88,6 @@ namespace erebos {
                 return "Invalid shader";
             case VK_ERROR_INVALID_DEVICE_ADDRESS_EXT:
                 return "Invalid device address";
-            default:
-                return fmt::format("Unknown ({})", static_cast<int8_t>(error_code));
-        }
-    }
-
-    [[nodiscard]] constexpr auto rps_strerror(RpsResult error_code) noexcept -> std::string {
-        switch (error_code) {
-            case RPS_ERROR_INVALID_ARGUMENTS:
-                return "Invalid arguments";
-            case RPS_ERROR_INVALID_DATA:
-                return "Invalid data";
-            case RPS_ERROR_OUT_OF_MEMORY:
-                return "Out of memory";
-            case RPS_ERROR_INVALID_FILE_FORMAT:
-                return "Invalid file format";
-            case RPS_ERROR_FILE_NOT_FOUND:
-                return "File not found";
-            case RPS_ERROR_INVALID_OPERATION:
-                return "Invalid operation";
-            case RPS_ERROR_UNRECOGNIZED_COMMAND:
-                return "Unrecognized command";
-            case RPS_ERROR_UNSUPPORTED_VERSION_TOO_OLD:
-                return "File version too old";
-            case RPS_ERROR_UNSUPPORTED_VERSION_TOO_NEW:
-                return "File version too new";
-            case RPS_ERROR_UNKNOWN_NODE:
-                return "Unknown node";
-            case RPS_ERROR_INDEX_OUT_OF_BOUNDS:
-                return "Index out of bounds";
-            case RPS_ERROR_COMMAND_ALREADY_FINAL:
-                return "Command already final";
-            case RPS_ERROR_INTEROP_DATA_LAYOUT_MISMATCH:
-                return "Data Layout mismatch between RUntime and Shader";
-            case RPS_ERROR_KEY_NOT_FOUND:
-                return "Key not found";
-            case RPS_ERROR_KEY_DUPLICATED:
-                return "Key duplicated";
-            case RPS_ERROR_NOT_IMPLEMENTED:
-                return "Not implemented";
-            case RPS_ERROR_INTEGER_OVERFLOW:
-                return "Integer Overflow";
-            case RPS_ERROR_RANGE_OVERLAPPING:
-                return "Exclusive ranges overlapping";
-            case RPS_ERROR_INVALID_PROGRAM:
-                return "Invalid RPSL shader program being formed";
-            case RPS_ERROR_VALIDATION_FAILED:
-                return "Invalid pipeline configuration";
-            case RPS_ERROR_TYPE_MISMATCH:
-                return "Type mismatch";
-            case RPS_ERROR_NOT_SUPPORTED:
-                return "Unsupported feature";
-            case RPS_ERROR_INTERNAL_ERROR:
-                return "RPS library internal error";
             default:
                 return fmt::format("Unknown ({})", static_cast<int8_t>(error_code));
         }

@@ -31,7 +31,8 @@ namespace erebos {
      * @since                14/03/2024
      */
     Window::Window(std::string_view title, uint32_t initial_width, uint32_t initial_height)
-        : _event_handlers {} {
+        : _event_callback_list {}
+        , _render_callback_list {} {
         using namespace std::string_literals;
         if(::SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
             throw std::runtime_error {fmt::format("Unable to init SDL: {}", ::SDL_GetError())};
@@ -53,7 +54,8 @@ namespace erebos {
 
     Window::Window(Window&& other) noexcept
         : _window_handle {other._window_handle}
-        , _event_handlers {std::move(other._event_handlers)} {
+        , _render_callback_list {std::move(other._render_callback_list)}
+        , _event_callback_list {std::move(other._event_callback_list)} {
         other._window_handle = nullptr;
     }
 
@@ -91,21 +93,28 @@ namespace erebos {
                     continue;
                 }
 
-                for(const auto& handlers : _event_handlers) {
-                    if(const auto result = handlers.first(event, handlers.second); result.is_error()) {
+                // Trigger all event callbacks
+                for(const auto& callback_entry : _event_callback_list) {
+                    if(const auto result = callback_entry.first(event, callback_entry.second); result.is_error()) {
                         SPDLOG_ERROR("Error while handling SDL event -> {}", result.get_error());
                     }
                 }
             }
 
-            // TODO: Do render after event fetch
+            // Trigger all render callbacks
+            for(const auto& callback_entry : _render_callback_list) {
+                if(const auto result = callback_entry.first(callback_entry.second); result.is_error()) {
+                    SPDLOG_ERROR("Error while handling render callback -> {}", result.get_error());
+                }
+            }
         }
         return {};
     }
 
     auto Window::operator=(Window&& other) noexcept -> Window& {
         _window_handle = other._window_handle;
-        _event_handlers = std::move(other._event_handlers);
+        _render_callback_list = std::move(other._render_callback_list);
+        _event_callback_list = std::move(other._event_callback_list);
         other._window_handle = nullptr;
         return *this;
     }

@@ -83,7 +83,7 @@ namespace erebos::vulkan {
          * @author       Cedric Hammes
          * @since        14/03/2024
          */
-        explicit CommandPool(const Device& device);
+        CommandPool(const Device& device, uint32_t queue_family_index);
         CommandPool(CommandPool&& other) noexcept;
 
         /**

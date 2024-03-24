@@ -84,9 +84,11 @@ namespace erebos::vulkan {
         , _queue {}
         , _runtime_device {} {
         constexpr auto queue_property = 1.0f;
-        constexpr std::array<const char*, 1> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+        constexpr std::array<const char*, 2> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                                                  VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME};
 
         // Get properties
+
         VkPhysicalDeviceProperties device_properties {};
         ::vkGetPhysicalDeviceProperties(_phy_device, &device_properties);
 
@@ -95,9 +97,14 @@ namespace erebos::vulkan {
         vulkan13_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
         vulkan13_features.dynamicRendering = VK_TRUE;
 
+        VkPhysicalDeviceVulkan12Features vulkan12_features {};
+        vulkan13_features.pNext = &vulkan13_features;
+        vulkan12_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+        vulkan12_features.timelineSemaphore = true;
+
         VkPhysicalDeviceFeatures2 features {};
         features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-        features.pNext = &vulkan13_features;
+        features.pNext = &vulkan12_features;
 
         // Create device queue
         VkDeviceQueueCreateInfo device_queue_create_info {};
@@ -180,7 +187,7 @@ namespace erebos::vulkan {
         vk_runtime_device_create_info.hVkPhysicalDevice = _phy_device;
         vk_runtime_device_create_info.pVkFunctions = &rps_vulkan_functions;
         if(const auto error = rpsVKRuntimeDeviceCreate(&vk_runtime_device_create_info, &_runtime_device); error < 0) {
-            throw std::runtime_error {fmt::format("Unable to initialize RPS device: {}", rps_strerror(error))};
+            throw std::runtime_error {fmt::format("Unable to initialize RPS device: {}", rpsResultGetName(error))};
         }
 
         // Create memory allocator
@@ -257,7 +264,7 @@ namespace erebos::vulkan {
         }
 
         if(_device != nullptr) {
-            ::vkDestroyDevice(_device, nullptr); // TODO: SIGABORT WTF?
+            ::vkDestroyDevice(_device, nullptr);// TODO: SIGABORT WTF?
             _device = nullptr;
         }
     }

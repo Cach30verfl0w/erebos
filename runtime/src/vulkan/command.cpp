@@ -86,13 +86,13 @@ namespace erebos::vulkan {
      * @author       Cedric Hammes
      * @since        14/03/2024
      */
-    CommandPool::CommandPool(const Device& device)
+    CommandPool::CommandPool(const Device& device, uint32_t queue_family_index)
         : _device {&device}
         , _command_pool {} {
         VkCommandPoolCreateInfo create_info {};
         create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        create_info.queueFamilyIndex = 0; /** Add device.get_graphics_queue().get_family_index() when own queue impl **/
+        create_info.queueFamilyIndex = queue_family_index;
         if(const auto err = ::vkCreateCommandPool(*device, &create_info, nullptr, &_command_pool); err != VK_SUCCESS) {
             throw std::runtime_error {fmt::format("Unable to create command pool: {}", vk_strerror(err))};
         }
