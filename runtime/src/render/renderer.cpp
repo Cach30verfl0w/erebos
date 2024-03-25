@@ -224,7 +224,7 @@ namespace erebos::render {
         present_info.swapchainCount = 1;
         present_info.pSwapchains = &raw_swapchain;
         present_info.pImageIndices = &current_image_index;
-        if(const auto error = vkQueuePresentKHR(_vulkan_device->get_graphics_queue(), &present_info); error != VK_SUCCESS) {
+        if(const auto error = vkQueuePresentKHR(_vulkan_device->get_direct_queue(), &present_info); error != VK_SUCCESS) {
             return kstd::Error {fmt::format("Unable to render with renderer: {}", vk_strerror(error))};
         }
         return {};

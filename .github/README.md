@@ -3,7 +3,8 @@
 Erebos Engine is a Vulkan and SDL2-based 3D Game Engine, written in C++ for my modern-day strategy game and educational purposes. Mainly this project is made to improve my knowledge about C++, CMake and the Vulkan API.
 
 ## Dependencies/Credits
-This projects contains a few dependencies to work. Below this text is an enumeration of all dependencies.  
+This projects contains a few dependencies to work. Below this text is an enumeration of all dependencies. Big thanks to [BeastLe9enD](https://github.com/beastLe9enD/) for helping me with Vulkan and Game Engine Stuff.
+
 | Library | Author | License |  
 |-|-|-|  
 | [volk](https://github.com/zeux/volk) | [Arseny Kapoulkine](https://github.com/zeux) | [MIT license](https://github.com/zeux/volk/tree/master?tab=MIT-1-ov-file#readme) |  

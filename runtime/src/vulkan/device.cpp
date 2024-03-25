@@ -23,6 +23,49 @@
 
 namespace erebos::vulkan {
     namespace {
+        [[nodiscard]] auto find_queue_family_index(VkPhysicalDevice physical_device,
+                                                   VkQueueFlags desired_flags,
+                                                   VkQueueFlags undesired_flags = 0) noexcept -> kstd::Option<uint32_t> {
+            uint32_t queue_family_properties_count = 0;
+            vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_properties_count, nullptr);
+            std::vector<VkQueueFamilyProperties> properties_list {queue_family_properties_count};
+            vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_properties_count, properties_list.data());
+
+            // Enumerate queue families and acquire queue with desired flags and highest possible queue count
+            uint32_t queue_count = 0;
+            uint32_t family_index = 0;
+            for(auto i = 0; i < properties_list.size(); i++) {
+                const auto properties = properties_list.at(i);
+                if((properties.queueFlags & desired_flags) == desired_flags &&
+                   (undesired_flags != 0 && ((properties.queueFlags & undesired_flags) == 0)) && properties.queueCount > queue_count) {
+                    queue_count = properties.queueCount;
+                    family_index = i;
+                }
+            }
+
+            // Return index of queue family if queue was found
+            if(queue_count > 0) {
+                return {family_index};
+            }
+            return {};
+        }
+
+        [[nodiscard]] auto find_queue_family_indices(VkPhysicalDevice device) noexcept -> std::tuple<uint32_t, uint32_t, uint32_t> {
+            auto direct_index = find_queue_family_index(device, VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT);
+            // clang-format off
+            auto compute_queue_index = find_queue_family_index(device, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT)
+                    .get_or(find_queue_family_index(device, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_GRAPHICS_BIT)
+                    .get_or(find_queue_family_index(device, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT)
+                    .get_or(direct_index)));
+
+            auto transfer_queue_index = find_queue_family_index(device, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)
+                    .get_or(find_queue_family_index(device, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_GRAPHICS_BIT)
+                    .get_or(find_queue_family_index(device, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT)
+                    .get_or(direct_index)));
+            // clang-format on
+            return {direct_index, compute_queue_index, transfer_queue_index};
+        }
+
         auto get_device_local_heap(VkPhysicalDevice device_handle) -> uint32_t {
             VkPhysicalDeviceMemoryProperties memory_properties {};
             vkGetPhysicalDeviceMemoryProperties(device_handle, &memory_properties);
@@ -81,9 +124,9 @@ namespace erebos::vulkan {
     Device::Device(const VulkanContext& context, VkPhysicalDevice physical_device_handle)
         : _phy_device {physical_device_handle}
         , _device {}
-        , _queue {}
-        , _runtime_device {} {
-        constexpr auto queue_property = 1.0f;
+        , _queues {VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE}
+        , _runtime_device {}
+        , _allocator {} {
         constexpr std::array<const char*, 2> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                                                   VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME};
 
@@ -106,12 +149,37 @@ namespace erebos::vulkan {
         features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
         features.pNext = &vulkan12_features;
 
-        // Create device queue
-        VkDeviceQueueCreateInfo device_queue_create_info {};
-        device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        device_queue_create_info.queueCount = 1;
-        device_queue_create_info.queueFamilyIndex = 0;
-        device_queue_create_info.pQueuePriorities = &queue_property;
+        // Create device queues, Credits: https://github.com/ProjectKML/greek/blob/main/crates/greek_render/src/backend/device.rs#L601-L619
+        constexpr auto queue_properties = 1.0f;
+        const auto [direct_queue_index, compute_queue_index, transfer_queue_index] = find_queue_family_indices(_phy_device);
+        VkDeviceQueueCreateInfo direct_queue_create_info {};
+        direct_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        direct_queue_create_info.queueFamilyIndex = direct_queue_index;
+        direct_queue_create_info.pQueuePriorities = &queue_properties;
+        direct_queue_create_info.queueCount = 1;
+        std::vector<VkDeviceQueueCreateInfo> queue_create_infos {3, direct_queue_create_info};
+
+        if(compute_queue_index != direct_queue_index) {
+            VkDeviceQueueCreateInfo compute_queue_create_info {};
+            compute_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            compute_queue_create_info.queueFamilyIndex = compute_queue_index;
+            compute_queue_create_info.pQueuePriorities = &queue_properties;
+            compute_queue_create_info.queueCount = 1;
+            queue_create_infos[1] = compute_queue_create_info;
+        }
+
+        if(transfer_queue_index != direct_queue_index) {
+            VkDeviceQueueCreateInfo transfer_queue_create_info {};
+            transfer_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            transfer_queue_create_info.queueFamilyIndex = transfer_queue_index;
+            transfer_queue_create_info.pQueuePriorities = &queue_properties;
+            transfer_queue_create_info.queueCount = 1;
+            queue_create_infos[2] = transfer_queue_create_info;
+        }
+        SPDLOG_INFO("Create queues for device (Direct Queue Index = {}, Transfer Queue Family = {}, Compute Queue Family = {})",
+                    direct_queue_index,
+                    transfer_queue_index,
+                    compute_queue_index);
 
         // Create device itself
         SPDLOG_INFO("Creating device '{}' (Driver Version: {}.{}.{})",
@@ -123,8 +191,8 @@ namespace erebos::vulkan {
         VkDeviceCreateInfo device_create_info {};
         device_create_info.pNext = &features;
         device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        device_create_info.pQueueCreateInfos = &device_queue_create_info;
-        device_create_info.queueCreateInfoCount = 1;
+        device_create_info.pQueueCreateInfos = queue_create_infos.data();
+        device_create_info.queueCreateInfoCount = 3;
         device_create_info.enabledLayerCount = 0;
         device_create_info.enabledExtensionCount = device_extensions.size();
         device_create_info.ppEnabledExtensionNames = device_extensions.data();
@@ -132,7 +200,8 @@ namespace erebos::vulkan {
             throw std::runtime_error {fmt::format("Unable to create device: {}", vk_strerror(err))};
         }
         ::volkLoadDevice(_device);
-        ::vkGetDeviceQueue(_device, 0, 0, &_queue);
+
+        // Initialize queues
 
         // Create RenderPipelineShaders
         RpsVKFunctions rps_vulkan_functions {};
@@ -235,12 +304,11 @@ namespace erebos::vulkan {
     Device::Device(Device&& other) noexcept
         : _phy_device {other._phy_device}
         , _device {other._device}
-        , _queue {other._queue}
+        , _queues {other._queues}
         , _allocator {other._allocator}
         , _runtime_device {other._runtime_device} {
         other._phy_device = nullptr;
         other._device = nullptr;
-        other._queue = nullptr;
         other._allocator = nullptr;
         other._runtime_device = nullptr;
     }
@@ -272,12 +340,11 @@ namespace erebos::vulkan {
     auto Device::operator=(Device&& other) noexcept -> Device& {
         _phy_device = other._phy_device;
         _device = other._device;
-        _queue = other._queue;
+        _queues = other._queues;
         _allocator = other._allocator;
         _runtime_device = other._runtime_device;
         other._phy_device = nullptr;
         other._device = nullptr;
-        other._queue = nullptr;
         other._allocator = nullptr;
         other._runtime_device = nullptr;
         return *this;

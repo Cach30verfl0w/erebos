@@ -31,9 +31,9 @@ auto render(void* renderer_pointer) -> kstd::Result<void> {
         return kstd::Error {error.get_error()};
     }
 
-    if (const auto error = renderer->render(); !error) {
+    /*if (const auto error = renderer->render(); !error) {
         return kstd::Error {error.get_error()};
-    }
+    }*/
     return {};
 }
 

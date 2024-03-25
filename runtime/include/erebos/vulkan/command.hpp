@@ -138,7 +138,7 @@ namespace erebos::vulkan {
             submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submit_info.pCommandBuffers = &raw_command_buffer;
             submit_info.commandBufferCount = 1;
-            if(const auto error = vkQueueSubmit(_device->get_graphics_queue(), 1, &submit_info, *submit_fence); error != VK_SUCCESS) {
+            if(const auto error = vkQueueSubmit(_device->get_direct_queue(), 1, &submit_info, *submit_fence); error != VK_SUCCESS) {
                 return kstd::Error {fmt::format("Unable to emit one-time command buffer: {}", platform::get_last_error())};
             }
 

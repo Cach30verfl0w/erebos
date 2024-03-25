@@ -21,7 +21,9 @@
 #include "erebos/utils.hpp"
 #include "erebos/vulkan/context.hpp"
 #include <kstd/defaults.hpp>
+#include <kstd/option.hpp>
 #include <kstd/result.hpp>
+#include <tuple>
 #include <mimalloc.h>
 #include <rps/rps.h>
 #include <rps/runtime/vk/rps_vk_runtime.h>
@@ -32,11 +34,11 @@ namespace erebos::vulkan {
     class Device final {
         VkPhysicalDevice _phy_device;
         VkDevice _device;
-        VkQueue _queue;
+        std::array<VkQueue, 3> _queues;
         RpsDevice _runtime_device;
         VmaAllocator _allocator;
 
-        public:
+    public:
         /**
          * This constructor creates a virtual device handle by the specified physical device handle. After that, the
          * Vulkan memory allocator gets initialized.
@@ -58,16 +60,16 @@ namespace erebos::vulkan {
         ~Device() noexcept;
         KSTD_NO_COPY(Device, Device);
 
-        /**
-         * This function returns the graphics queue of this device. This queue is used as the main queue for all types
-         * of operations.
-         *
-         * @return The main/graphics queue
-         * @author Cedric Hammes
-         * @since  14/03/2024
-         */
-        [[nodiscard]] inline auto get_graphics_queue() const noexcept -> VkQueue {
-            return _queue;
+        [[nodiscard]] inline auto get_direct_queue() const noexcept -> VkQueue {
+            return _queues[0];
+        }
+
+        [[nodiscard]] inline auto get_compute_queue() const noexcept -> VkQueue {
+            return _queues[1];
+        }
+
+        [[nodiscard]] inline auto get_transfer_queue() const noexcept -> VkQueue {
+            return _queues[2];
         }
 
         /**
