@@ -172,7 +172,7 @@ namespace erebos::render {
             std::vector<VkPipelineStageFlags> wait_dst_stage_masks =
                 std::vector(wait_fences_count, static_cast<VkPipelineStageFlags>(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT));
             std::vector<uint64_t> signal_semaphore_values = std::vector(wait_fences_count, static_cast<uint64_t>(batch.signalFenceIndex));
-            auto fence = vulkan::Fence {*_vulkan_device};
+            auto fence = vulkan::sync::Fence {*_vulkan_device};
 
             if(i == 0) {
                 wait_semaphores.push_back(_image_acquired_semaphore);

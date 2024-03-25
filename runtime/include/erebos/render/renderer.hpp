@@ -21,7 +21,7 @@
 #include "erebos/vulkan/command.hpp"
 #include "erebos/vulkan/device.hpp"
 #include "erebos/vulkan/swapchain.hpp"
-#include "erebos/vulkan/fence.hpp"
+#include "erebos/vulkan/sync/fence.hpp"
 #include <rps/core/rps_api.h>
 
 namespace erebos::render {

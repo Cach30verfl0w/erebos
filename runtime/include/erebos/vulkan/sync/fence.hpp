@@ -22,7 +22,7 @@
 #include <chrono>
 #include <volk.h>
 
-namespace erebos::vulkan {
+namespace erebos::vulkan::sync {
     /**
      * This is a wrapper around the fence, provided by Vulkan. Fences are allowing the developer to wait on the CPU-side
      * for the end of GPU-side operations like queue submits etc.

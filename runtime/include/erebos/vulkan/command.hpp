@@ -20,7 +20,7 @@
 #pragma once
 #include "erebos/platform/platform.hpp"
 #include "erebos/vulkan/device.hpp"
-#include "erebos/vulkan/fence.hpp"
+#include "erebos/vulkan/sync/fence.hpp"
 #include <kstd/safe_alloc.hpp>
 
 namespace erebos::vulkan {
@@ -121,7 +121,7 @@ namespace erebos::vulkan {
 
             // Create command buffer and submit fence
             const auto command_buffer = std::move(allocate(1).get_or_throw()[0]);
-            const auto submit_fence = Fence {*_device};
+            const auto submit_fence = sync::Fence {*_device};
             const auto raw_command_buffer = *command_buffer;
 
             // Perform operation

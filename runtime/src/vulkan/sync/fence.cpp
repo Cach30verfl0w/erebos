@@ -17,9 +17,9 @@
  * @since  14/03/2024
  */
 
-#include "erebos/vulkan/fence.hpp"
+#include "erebos/vulkan/sync/fence.hpp"
 
-namespace erebos::vulkan {
+namespace erebos::vulkan::sync {
     /**
      * This constructor creates a new fence on the specified device. This function throws an exception when the
      * creation doesn't works.
