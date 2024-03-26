@@ -16,7 +16,8 @@
 
 namespace erebos::vulkan::sync {
     Semaphore::Semaphore(const Device& device, bool is_timeline)
-        : _device {&device} {
+        : _device {&device}
+        , _handle {} {
         VkSemaphoreCreateInfo semaphore_create_info {};
         semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
         if(is_timeline) {

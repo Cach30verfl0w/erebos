@@ -16,6 +16,7 @@
  * @author Cedric Hammes
  * @since  25/03/2024
  */
+#pragma once
 #include "erebos/vulkan/device.hpp"
 
 namespace erebos::vulkan::sync {

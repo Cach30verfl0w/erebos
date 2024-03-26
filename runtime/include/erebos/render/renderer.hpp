@@ -20,27 +20,28 @@
 #pragma once
 #include "erebos/vulkan/command.hpp"
 #include "erebos/vulkan/device.hpp"
+#include "erebos/vulkan/frame.hpp"
 #include "erebos/vulkan/swapchain.hpp"
 #include "erebos/vulkan/sync/fence.hpp"
+#include "erebos/vulkan/sync/semaphore.hpp"
 #include <rps/core/rps_api.h>
 
 namespace erebos::render {
     class Renderer {
         RpsRenderGraph _render_graph_handle;
         const vulkan::VulkanContext* _vulkan_context;
-        const vulkan::Device* _vulkan_device;
+        vulkan::Device* _vulkan_device;
         vulkan::Swapchain _swapchain;
-        VkSemaphore _timeline_semaphore;
-        VkSemaphore _rendering_done_semaphore;
-        VkSemaphore _image_acquired_semaphore;
+        std::vector<vulkan::RenderFrame> _frames;
+        vulkan::sync::Semaphore _image_available_semaphore;
 
     public:
-        Renderer(const vulkan::VulkanContext& context, const vulkan::Device& device);
+        Renderer(const vulkan::VulkanContext& context, vulkan::Device& device);
         Renderer(Renderer&& other) noexcept;
         ~Renderer() noexcept;
         KSTD_NO_COPY(Renderer, Renderer);
 
-        [[nodiscard]] auto render() const noexcept -> kstd::Result<void>;
+        [[nodiscard]] auto render() noexcept -> kstd::Result<void>;
         [[nodiscard]] auto update() const noexcept -> kstd::Result<void>;
 
         inline auto operator=(Renderer&&) noexcept -> Renderer&;

@@ -108,9 +108,6 @@ namespace erebos::vulkan {
             ::vprintf(format, args);
         }
 
-        constexpr auto compare_by_local_heap = [](const auto& left, const auto& right) -> bool {
-            return get_device_local_heap(left) < get_device_local_heap(right);
-        };
     }// namespace
 
     /**
@@ -124,7 +121,7 @@ namespace erebos::vulkan {
     Device::Device(const VulkanContext& context, VkPhysicalDevice physical_device_handle)
         : _phy_device {physical_device_handle}
         , _device {}
-        , _queues {VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE}
+        , _queues {std::pair(0, nullptr), std::pair(0, nullptr), std::pair(0, nullptr)}
         , _runtime_device {}
         , _allocator {} {
         constexpr std::array<const char*, 2> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
@@ -176,10 +173,6 @@ namespace erebos::vulkan {
             transfer_queue_create_info.queueCount = 1;
             queue_create_infos[2] = transfer_queue_create_info;
         }
-        SPDLOG_INFO("Create queues for device (Direct Queue Index = {}, Transfer Queue Family = {}, Compute Queue Family = {})",
-                    direct_queue_index,
-                    transfer_queue_index,
-                    compute_queue_index);
 
         // Create device itself
         SPDLOG_INFO("Creating device '{}' (Driver Version: {}.{}.{})",
@@ -202,6 +195,17 @@ namespace erebos::vulkan {
         ::volkLoadDevice(_device);
 
         // Initialize queues
+        vkGetDeviceQueue(_device, direct_queue_index, 0, &_queues.at(0).second);
+        vkGetDeviceQueue(_device, transfer_queue_index, 0, &_queues.at(1).second);
+        vkGetDeviceQueue(_device, compute_queue_index, 0, &_queues.at(2).second);
+
+        SPDLOG_INFO("Create queues for device -> Direct Queue ({}) = {}, Transfer Queue ({}) = {}, Compute Queue ({}) = {}",
+                    direct_queue_index,
+                    fmt::ptr(_queues.at(0).second),
+                    transfer_queue_index,
+                    fmt::ptr(_queues.at(1).second),
+                    compute_queue_index,
+                    fmt::ptr(_queues.at(2).second));
 
         // Create RenderPipelineShaders
         RpsVKFunctions rps_vulkan_functions {};
@@ -304,7 +308,7 @@ namespace erebos::vulkan {
     Device::Device(Device&& other) noexcept
         : _phy_device {other._phy_device}
         , _device {other._device}
-        , _queues {other._queues}
+        , _queues {std::move(other._queues)}
         , _allocator {other._allocator}
         , _runtime_device {other._runtime_device} {
         other._phy_device = nullptr;
@@ -340,7 +344,7 @@ namespace erebos::vulkan {
     auto Device::operator=(Device&& other) noexcept -> Device& {
         _phy_device = other._phy_device;
         _device = other._device;
-        _queues = other._queues;
+        _queues = std::move(other._queues);
         _allocator = other._allocator;
         _runtime_device = other._runtime_device;
         other._phy_device = nullptr;

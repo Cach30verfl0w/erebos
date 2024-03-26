@@ -27,13 +27,9 @@
 
 auto render(void* renderer_pointer) -> kstd::Result<void> {
     auto renderer = static_cast<erebos::render::Renderer*>(renderer_pointer);
-    if (const auto error = renderer->update(); !error) {
+    if (const auto error = renderer->render(); !error) {
         return kstd::Error {error.get_error()};
     }
-
-    /*if (const auto error = renderer->render(); !error) {
-        return kstd::Error {error.get_error()};
-    }*/
     return {};
 }
 
@@ -66,7 +62,7 @@ auto main(int argc, char* argv[]) -> int {
         return -1;
     }
 
-    const auto device = erebos::vulkan::find_device(*vulkan_context);
+    auto device = erebos::vulkan::find_device(*vulkan_context);
     if(!device) {
         SPDLOG_ERROR("{}", device.get_error());
         return -1;

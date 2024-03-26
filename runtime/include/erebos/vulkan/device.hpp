@@ -34,7 +34,7 @@ namespace erebos::vulkan {
     class Device final {
         VkPhysicalDevice _phy_device;
         VkDevice _device;
-        std::array<VkQueue, 3> _queues;
+        std::array<std::pair<uint32_t, VkQueue>, 3> _queues;
         RpsDevice _runtime_device;
         VmaAllocator _allocator;
 
@@ -60,16 +60,20 @@ namespace erebos::vulkan {
         ~Device() noexcept;
         KSTD_NO_COPY(Device, Device);
 
+        [[nodiscard]] inline auto get_queue_family_indices() const noexcept -> std::array<uint32_t, 3> {
+            return {_queues[0].first, _queues[1].first, _queues[2].first};
+        }
+
         [[nodiscard]] inline auto get_direct_queue() const noexcept -> VkQueue {
-            return _queues[0];
+            return _queues[0].second;
         }
 
         [[nodiscard]] inline auto get_compute_queue() const noexcept -> VkQueue {
-            return _queues[1];
+            return _queues[1].second;
         }
 
         [[nodiscard]] inline auto get_transfer_queue() const noexcept -> VkQueue {
-            return _queues[2];
+            return _queues[2].second;
         }
 
         /**

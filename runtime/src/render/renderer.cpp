@@ -23,18 +23,19 @@ RPS_DECLARE_RPSL_ENTRY(runtime, main)
 
 namespace erebos::render {
 
-    Renderer::Renderer(const vulkan::VulkanContext& context, const vulkan::Device& device)
+    Renderer::Renderer(const vulkan::VulkanContext& context, vulkan::Device& device)
         : _render_graph_handle {}
         , _swapchain {context, device}
         , _vulkan_context {&context}
         , _vulkan_device {&device}
-        , _timeline_semaphore {}
-        , _rendering_done_semaphore {}
-        , _image_acquired_semaphore {} {
+        , _frames {}
+        , _image_available_semaphore {device, false} {
         uint32_t queue_count = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device.get_physical_device(), &queue_count, nullptr);
         std::vector<VkQueueFamilyProperties> queue_family_properties_list {queue_count};
         vkGetPhysicalDeviceQueueFamilyProperties(device.get_physical_device(), &queue_count, queue_family_properties_list.data());
+        _frames.emplace_back(device);
+        _frames.emplace_back(device);
 
         // Collect flags
         RpsQueueFlags queue_flags = RpsQueueFlagBits::RPS_QUEUE_FLAG_NONE;
@@ -63,31 +64,6 @@ namespace erebos::render {
         if(const auto error = rpsRenderGraphCreate(device.get_rps_device(), &render_graph_create_info, &_render_graph_handle); error < 0) {
             throw std::runtime_error {fmt::format("Unable to create renderer: {}", rpsResultGetName(error))};
         }
-
-        // Create semaphores
-        VkSemaphoreTypeCreateInfo semaphore_type_create_info {};
-        semaphore_type_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
-        semaphore_type_create_info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
-        semaphore_type_create_info.initialValue = 0;
-
-        {
-            VkSemaphoreCreateInfo semaphore_create_info {};
-            semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            semaphore_create_info.pNext = &semaphore_type_create_info;
-            if(const auto error = vkCreateSemaphore(**_vulkan_device, &semaphore_create_info, nullptr, &_timeline_semaphore)) {
-                throw std::runtime_error {fmt::format("Unable to create renderer: {}", vk_strerror(error))};
-            }
-        }
-
-        VkSemaphoreCreateInfo semaphore_create_info {};
-        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-        if(const auto error = vkCreateSemaphore(**_vulkan_device, &semaphore_create_info, nullptr, &_rendering_done_semaphore)) {
-            throw std::runtime_error {fmt::format("Unable to create renderer: {}", vk_strerror(error))};
-        }
-
-        if(const auto error = vkCreateSemaphore(**_vulkan_device, &semaphore_create_info, nullptr, &_image_acquired_semaphore)) {
-            throw std::runtime_error {fmt::format("Unable to create renderer: {}", vk_strerror(error))};
-        }
     }
 
     Renderer::Renderer(Renderer&& other) noexcept
@@ -95,14 +71,10 @@ namespace erebos::render {
         , _swapchain {std::move(other._swapchain)}
         , _vulkan_context {other._vulkan_context}
         , _vulkan_device {other._vulkan_device}
-        , _timeline_semaphore {other._timeline_semaphore}
-        , _rendering_done_semaphore {other._rendering_done_semaphore}
-        , _image_acquired_semaphore {other._image_acquired_semaphore} {
+        , _frames {std::move(other._frames)}
+        , _image_available_semaphore {std::move(other._image_available_semaphore)} {
         other._render_graph_handle = nullptr;
         other._vulkan_device = nullptr;
-        other._timeline_semaphore = nullptr;
-        other._rendering_done_semaphore = nullptr;
-        other._image_acquired_semaphore = nullptr;
     }
 
     Renderer::~Renderer() noexcept {
@@ -110,40 +82,32 @@ namespace erebos::render {
             rpsRenderGraphDestroy(_render_graph_handle);
             _render_graph_handle = nullptr;
         }
-
-        if(_timeline_semaphore != nullptr) {
-            vkDestroySemaphore(**_vulkan_device, _timeline_semaphore, nullptr);
-            _timeline_semaphore = nullptr;
-        }
-
-        if(_rendering_done_semaphore != nullptr) {
-            vkDestroySemaphore(**_vulkan_device, _rendering_done_semaphore, nullptr);
-            _rendering_done_semaphore = nullptr;
-        }
-
-        if(_image_acquired_semaphore != nullptr) {
-            vkDestroySemaphore(**_vulkan_device, _image_acquired_semaphore, nullptr);
-            _image_acquired_semaphore = nullptr;
-        }
     }
 
-    auto Renderer::render() const noexcept -> kstd::Result<void> {
+    auto Renderer::render() noexcept -> kstd::Result<void> {
+        if (const auto result = _swapchain.next_image(*_image_available_semaphore); !result) {
+            return kstd::Error {result.get_error()};
+        }
+
+        if(const auto result = update(); !result) {
+            return kstd::Error {result.get_error()};
+        }
+
         RpsRenderGraphBatchLayout batch_layout {};
         if(const auto error = rpsRenderGraphGetBatchLayout(_render_graph_handle, &batch_layout); error < 0) {
             return kstd::Error {fmt::format("Unable to render with renderer: {}", rpsResultGetName(error))};
         }
 
+        auto& current_frame = _frames.at(_swapchain.current_image_index());
+        if(const auto result = current_frame.begin(); !result) {
+            return kstd::Error {result.get_error()};
+        }
+
         for(auto i = 0; i < batch_layout.numCmdBatches; i++) {
             RpsCommandBatch batch = batch_layout.pCmdBatches[i];
-
-            // Record render graph commands
-            const auto command_pool = kstd::try_construct<vulkan::CommandPool>(*_vulkan_device, batch.queueIndex);
-            if(!command_pool) {
-                return kstd::Error {command_pool.get_error()};
-            }
-
-            const auto command_buffer = std::move(command_pool->allocate(1)->at(0));
-            if(const auto error = command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT); !error) {
+            auto& queue_frame = current_frame.queue_frame_at(batch.queueIndex);
+            const auto& command_buffer = queue_frame.acquire_command_buffer();
+            if(const auto error = command_buffer.begin(); !error) {
                 return kstd::Error {error.get_error()};
             }
 
@@ -162,26 +126,27 @@ namespace erebos::render {
 
             // Create values
             const auto wait_fences_count = batch.numWaitFences;
-            std::vector<VkSemaphore> wait_semaphores = std::vector(wait_fences_count, _timeline_semaphore);
+            std::vector<VkSemaphore> wait_semaphores = std::vector(wait_fences_count, *queue_frame.get_timeline_semaphore());
             std::vector<uint64_t> wait_semaphore_values = std::vector(wait_fences_count, static_cast<uint64_t>(0));
             for(auto j = 0; j < wait_fences_count; j++) {
                 wait_semaphore_values[i] = *(batch_layout.pWaitFenceIndices + batch.waitFencesBegin + i);
             }
 
-            std::vector<VkSemaphore> signal_semaphores = std::vector(wait_fences_count, _timeline_semaphore);
+            std::vector<VkSemaphore> signal_semaphores = std::vector(wait_fences_count, *queue_frame.get_timeline_semaphore());
             std::vector<VkPipelineStageFlags> wait_dst_stage_masks =
                 std::vector(wait_fences_count, static_cast<VkPipelineStageFlags>(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT));
             std::vector<uint64_t> signal_semaphore_values = std::vector(wait_fences_count, static_cast<uint64_t>(batch.signalFenceIndex));
-            auto fence = vulkan::sync::Fence {*_vulkan_device};
+            kstd::Option<const vulkan::sync::Fence&> fence {};
 
             if(i == 0) {
-                wait_semaphores.push_back(_image_acquired_semaphore);
+                wait_semaphores.push_back(*_image_available_semaphore);
                 wait_semaphore_values.push_back(0);
                 wait_dst_stage_masks.push_back(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
             }
             else {
-                signal_semaphores.push_back(_rendering_done_semaphore);
+                signal_semaphores.push_back(*current_frame.get_rendering_done_semaphore());
                 signal_semaphore_values.push_back(0);
+                fence = {current_frame.get_fence()};
             }
 
             // Submit and wait
@@ -204,29 +169,36 @@ namespace erebos::render {
             submit_info.commandBufferCount = 1;
             submit_info.pCommandBuffers = &raw_command_buffer;
 
-            VkQueue queue {};
-            vkGetDeviceQueue(**_vulkan_device, 0, batch.queueIndex, &queue);
-            if(const auto error = vkQueueSubmit(queue, 1, &submit_info, *fence); error != VK_SUCCESS) {
+            // clang-format off
+            constexpr auto map_function = [](auto& fence) { return *fence; };
+            if(const auto error = vkQueueSubmit(queue_frame.get_queue(), 1, &submit_info, fence.map(map_function).get_or(nullptr));
+               error != VK_SUCCESS) {
                 return kstd::Error {fmt::format("Unable to render with renderer: {}", vk_strerror(error))};
             }
+            // clang-format on
 
-            if(const auto error = fence.wait_for(); !error) {
-                return kstd::Error {error.get_error()};
+            if(fence.has_value()) {
+                if(const auto error = fence->wait_for(); !error) {
+                    return kstd::Error {error.get_error()};
+                }
             }
         }
 
         const auto raw_swapchain = *_swapchain;
+        const auto raw_rendering_done_semaphore = *current_frame.get_rendering_done_semaphore();
         const auto current_image_index = _swapchain.current_image_index();
         VkPresentInfoKHR present_info {};
         present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         present_info.waitSemaphoreCount = 1;
-        present_info.pWaitSemaphores = &_rendering_done_semaphore;
+        present_info.pWaitSemaphores = &raw_rendering_done_semaphore;
         present_info.swapchainCount = 1;
         present_info.pSwapchains = &raw_swapchain;
         present_info.pImageIndices = &current_image_index;
+        ::printf("%p\n", _vulkan_device->get_direct_queue());
         if(const auto error = vkQueuePresentKHR(_vulkan_device->get_direct_queue(), &present_info); error != VK_SUCCESS) {
             return kstd::Error {fmt::format("Unable to render with renderer: {}", vk_strerror(error))};
         }
+        current_frame.end();
         return {};
     }
 
@@ -268,14 +240,9 @@ namespace erebos::render {
         _swapchain = std::move(other._swapchain);
         _vulkan_context = other._vulkan_context;
         _vulkan_device = other._vulkan_device;
-        _timeline_semaphore = other._timeline_semaphore;
-        _rendering_done_semaphore = other._rendering_done_semaphore;
-        _image_acquired_semaphore = other._image_acquired_semaphore;
+        _frames = std::move(other._frames);
         other._render_graph_handle = nullptr;
         other._vulkan_device = nullptr;
-        other._timeline_semaphore = nullptr;
-        other._rendering_done_semaphore = nullptr;
-        other._image_acquired_semaphore = nullptr;
         return *this;
     }
 }// namespace erebos::render
