@@ -38,7 +38,7 @@ namespace erebos::platform {
                              reinterpret_cast<LPWSTR>(&buffer),
                              0,
                              nullptr);
-        auto message = kstd::utils::to_mbs({buffer, new_length});
+        auto message = erebos::unicode::to_mbs({buffer, new_length});
         LocalFree(buffer);
         return message;
     }

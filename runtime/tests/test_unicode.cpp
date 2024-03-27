@@ -17,13 +17,14 @@
  * @since  18/03/2024
  */
 
-#include <erebos/platform/file.hpp>
+#include <erebos/unicode.hpp>
 #include <gtest/gtest.h>
 
-TEST(erebos_platform_File, test_file_create) {
-    {
-        const auto file = erebos::platform::File {"file.txt", erebos::platform::AccessMode::READ};
-        ASSERT_TRUE(std::filesystem::exists("file.txt"));
-    }
-    std::filesystem::remove("file.txt");
+TEST(erebos_unicode, to_wcs) {
+    ASSERT_EQ(erebos::unicode::to_wcs(R"(This is a test 🐺)"), LR"(This is a test 🐺)");
 }
+
+TEST(erebos_unicode, to_mbs) {
+    ASSERT_EQ(erebos::unicode::to_mbs(LR"(This is a test 🐺)"), R"(This is a test 🐺)");
+}
+
