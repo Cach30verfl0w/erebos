@@ -107,7 +107,7 @@ namespace erebos::platform {
                     notify = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(_event_buffer.data() + offset);
                     std::wstring file_name;
                     file_name.assign(notify->FileName, notify->FileNameLength / sizeof(WCHAR));
-                    const auto path = _base_path / erebos::utils::to_mbs(file_name);
+                    const auto path = _base_path / erebos::unicode::to_mbs(file_name);
 
                     {
                         const auto lock = std::lock_guard {_event_queue_mutex};

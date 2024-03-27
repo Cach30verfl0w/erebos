@@ -25,7 +25,7 @@
 #ifdef PLATFORM_WINDOWS
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
-#include "erebos/platform/platform.hpp"
+#include "erebos/unicode.hpp"
 #include <Windows.h>
 #else
 #include <dlfcn.h>
