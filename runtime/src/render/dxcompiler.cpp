@@ -28,7 +28,7 @@ namespace erebos::render {
         , _dxc_utils {} {
         // clang-format off
         _DxcCreateInstance =_library_loader.get_function<HRESULT, REFCLSID, REFIID, LPVOID*>("DxcCreateInstance")
-                .get_or_throw();
+                .move_or_throw();
         // clang-format on
 
         if(_DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&_dxc_utils)) != S_OK) {
@@ -41,8 +41,8 @@ namespace erebos::render {
         SPDLOG_INFO("Successfully initialized DX Compiler");
     }
 
-    auto DXCompiler::compile(const std::vector<kstd::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
-        -> kstd::Result<std::vector<std::uint32_t>> {
+    auto DXCompiler::compile(const std::vector<erebos::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
+        -> erebos::Result<std::vector<std::uint32_t>> {
         using namespace std::string_literals;
 
         LPCWSTR profile;
@@ -56,7 +56,7 @@ namespace erebos::render {
             profile = L"ps_6_8";
         }
         else {
-            return kstd::Error {fmt::format("Unable to compile HLSL shader: Invalid shader flags {}", static_cast<uint32_t>(shader_stage))};
+            return erebos::Error {fmt::format("Unable to compile HLSL shader: Invalid shader flags {}", static_cast<uint32_t>(shader_stage))};
         }
 
         // clang-format off
@@ -68,13 +68,13 @@ namespace erebos::render {
         DxcBuffer code_buffer {.Ptr = &*code.begin(), .Size = static_cast<std::uint32_t>(code.size()), .Encoding = 0};
         DXCPointer<IDxcResult> result;
         if(_dxc_compiler->Compile(&code_buffer, args.data(), args.size(), nullptr, IID_PPV_ARGS(&result)) != S_OK) {
-            return kstd::Error {fmt::format("Unable to compile HLSL shader: {}", platform::get_last_error())};
+            return erebos::Error {fmt::format("Unable to compile HLSL shader: {}", platform::get_last_error())};
         }
 
         DXCPointer<IDxcBlob> output_object;
         result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&output_object), nullptr);
         if(!output_object) {
-            return kstd::Error {"Unable to compile HLSL Shader: No valid output object provided"s};
+            return erebos::Error {"Unable to compile HLSL Shader: No valid output object provided"s};
         }
 
         const auto pointer = static_cast<uint32_t*>(output_object->GetBufferPointer());

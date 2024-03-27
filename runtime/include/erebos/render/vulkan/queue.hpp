@@ -14,26 +14,26 @@
 
 /**
  * @author Cedric Hammes
- * @since  25/03/2024
+ * @since  26/03/2024
  */
-#pragma once
-#include "erebos/vulkan/device.hpp"
 
-namespace erebos::vulkan::sync {
-    class Semaphore final {
-        const Device* _device;
-        VkSemaphore _handle;
+#pragma once
+#include <volk.h>
+
+namespace erebos::render::vulkan {
+    class Queue final {
+        VkQueue _queue_handle;
 
     public:
-        Semaphore(const Device& device, bool is_timeline);
-        Semaphore(Semaphore&& other) noexcept;
-        ~Semaphore() noexcept;
-        KSTD_NO_COPY(Semaphore, Semaphore);
-
-        inline auto operator*() const noexcept -> VkSemaphore {
-            return _handle;
+        Queue(VkDevice device, uint32_t queue_family_index, uint32_t queue_index) noexcept
+            : _queue_handle() {
+            ::vkGetDeviceQueue(device, queue_family_index, queue_index, &_queue_handle);
         }
+        ~Queue() noexcept = default;
+        EREBOS_DEFAULT_MOVE_COPY(Queue);
 
-        auto operator=(Semaphore&& other) noexcept -> Semaphore&;
+        [[nodiscard]] inline auto operator*() const noexcept -> VkQueue {
+            return _queue_handle;
+        }
     };
-}
+}// namespace erebos::render::vulkan

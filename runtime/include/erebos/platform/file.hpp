@@ -19,11 +19,9 @@
 
 #pragma once
 #include "erebos/platform/platform.hpp"
+#include "erebos/result.hpp"
 #include "erebos/utils.hpp"
 #include <filesystem>
-#include <kstd/bitflags.hpp>
-#include <kstd/defaults.hpp>
-#include <kstd/types.hpp>
 
 #ifdef PLATFORM_UNIX
 #include <fcntl.h>
@@ -31,16 +29,16 @@
 #endif
 
 namespace erebos::platform {
-    KSTD_BITFLAGS(uint8_t, AccessMode, READ = 0b001, WRITE = 0b010, EXECUTE = 0b100)
+    EREBOS_BITFLAGS(uint8_t, AccessMode, READ = 0b001, WRITE = 0b010, EXECUTE = 0b100)
 
     class FileMapping final {
 #ifdef PLATFORM_WINDOWS
         HANDLE _memory_map_handle;
 #endif
-        kstd::u8* _pointer;
-        kstd::usize _size;
+        erebos::u8* _pointer;
+        erebos::usize _size;
 
-        public:
+    public:
 #ifdef PLATFORM_WINDOWS
         /**
          * This constructor fills this class with the pointer to the memory and the size of the
@@ -51,7 +49,7 @@ namespace erebos::platform {
          * @author        Cedric Hammes
          * @since         16/03/2024
          */
-        FileMapping(kstd::u8* pointer, HANDLE memory_map_handle, kstd::usize size) noexcept;
+        FileMapping(erebos::u8* pointer, HANDLE memory_map_handle, erebos::usize size) noexcept;
 #else
         /**
          * This constructor fills this class with the pointer to the memory and the size of the
@@ -62,17 +60,17 @@ namespace erebos::platform {
          * @author        Cedric Hammes
          * @since         16/03/2024
          */
-        FileMapping(kstd::u8* pointer, kstd::usize size) noexcept;
+        FileMapping(erebos::u8* pointer, erebos::usize size) noexcept;
 #endif
         FileMapping(FileMapping&& other) noexcept;
         ~FileMapping() noexcept;
-        KSTD_NO_COPY(FileMapping, FileMapping);
+        EREBOS_DELETE_COPY(FileMapping);
 
-        inline auto operator*() const noexcept -> const kstd::u8* {
+        inline auto operator*() const noexcept -> const erebos::u8* {
             return _pointer;
         }
 
-        inline auto get_size() const noexcept -> kstd::usize {
+        inline auto get_size() const noexcept -> erebos::usize {
             return _size;
         }
 
@@ -91,7 +89,7 @@ namespace erebos::platform {
         AccessMode _access;
         FileHandle _handle;
 
-        public:
+    public:
         /**
          * This constructor opens the specified path into a file handle. If that handle is invalid, this function
          * throws a runtime error.
@@ -103,10 +101,10 @@ namespace erebos::platform {
         File(std::filesystem::path path, AccessMode access_mode);
         File(File&& other) noexcept;
         ~File() noexcept;
-        KSTD_NO_COPY(File, File);
+        EREBOS_DELETE_COPY(File);
 
-        [[nodiscard]] auto map_into_memory() const noexcept -> kstd::Result<FileMapping>;
-        [[nodiscard]] auto get_file_size() const noexcept -> kstd::Result<kstd::usize>;
+        [[nodiscard]] auto map_into_memory() const noexcept -> erebos::Result<FileMapping>;
+        [[nodiscard]] auto get_file_size() const noexcept -> erebos::Result<erebos::usize>;
 
         [[nodiscard]] inline auto operator*() const noexcept -> FileHandle {
             return _handle;

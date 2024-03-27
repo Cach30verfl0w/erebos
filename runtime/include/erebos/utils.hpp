@@ -19,16 +19,40 @@
 
 #pragma once
 #define RPS_VK_DYNAMIC_LOADING 1
-#include <kstd/result.hpp>
 #include <rps/rps.h>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <string>
 #include <vector>
 #include <volk.h>
+#include <atomic>
+
+#define EREBOS_DEFAULT_MOVE(t)       \
+    t(t&& other) noexcept = default; \
+    auto operator=(t&& other) noexcept -> t& = default;
+
+#define EREBOS_DEFAULT_COPY(t)      \
+    t(t& other) noexcept = default; \
+    auto operator=(t& other) noexcept -> t& = default;
+
+#define EREBOS_DELETE_COPY(t)      \
+    t(t& other) noexcept = delete; \
+    auto operator=(t& other) noexcept -> t& = delete;
+
+#define EREBOS_DEFAULT_MOVE_COPY(t) \
+    EREBOS_DEFAULT_MOVE(t)          \
+    EREBOS_DEFAULT_COPY(t)
+
+#define EREBOS_BITFLAGS(t, n, ...) enum n : t { NONE = 0, __VA_ARGS__ };
 
 namespace erebos {
-    using VoidResult = kstd::Result<void>;
+    using i32 = std::int32_t;
+
+    using u8 = std::uint8_t;
+    using u32 = std::uint32_t;
+    using usize = std::size_t;
+
+    using atomic_bool = std::atomic_bool;
 
     template<typename T, T... FLAGS>
     [[nodiscard]] constexpr auto are_flags_set(T value) noexcept -> bool {

@@ -20,7 +20,6 @@
 #pragma once
 #include <cstring>
 #include <fmt/format.h>
-#include <kstd/types.hpp>
 #include <string>
 
 #ifdef PLATFORM_WINDOWS

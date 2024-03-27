@@ -82,7 +82,7 @@ namespace erebos {
      * @author Cedric Hammes
      * @since  14/03/2024
      */
-    auto Window::run_loop() const noexcept -> kstd::Result<void> {
+    auto Window::run_loop() const noexcept -> erebos::Result<void> {
         auto is_running = true;
 
         SDL_Event event {};
@@ -95,7 +95,7 @@ namespace erebos {
 
                 // Trigger all event callbacks
                 for(const auto& callback_entry : _event_callback_list) {
-                    if(const auto result = callback_entry.first(event, callback_entry.second); result.is_error()) {
+                    if(auto result = callback_entry.first(event, callback_entry.second); !result) {
                         SPDLOG_ERROR("Error while handling SDL event -> {}", result.get_error());
                     }
                 }
@@ -103,7 +103,7 @@ namespace erebos {
 
             // Trigger all render callbacks
             for(const auto& callback_entry : _render_callback_list) {
-                if(const auto result = callback_entry.first(callback_entry.second); result.is_error()) {
+                if(auto result = callback_entry.first(callback_entry.second); !result) {
                     SPDLOG_ERROR("Error while handling render callback -> {}", result.get_error());
                 }
             }

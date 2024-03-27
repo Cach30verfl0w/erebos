@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.27)
 project(erebos)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;")
+
 # Default C++ and C standard
 if (NOT DEFINED CMAKE_CXX_STANDARD)
     message(STATUS "No C++ version specified, defaulting to C++20")
@@ -36,14 +38,6 @@ elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "[xX]86|i[3456]86")
     add_compile_definitions(ARCH_X86)
     set(ARCH "x86")
     message(STATUS "Detected x86 based processor")
-elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "[rR]isc[vV]64")
-    add_compile_definitions(ARCH_RISCV64 ARCH_RISCV)
-    message(STATUS "Detected RISC-V64 based processor")
-    set(ARCH "riscv64")
-elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "[rR]isc[vV]")
-    add_compile_definitions(ARCH_RISCV)
-    set(ARCH "riscv")
-    message(STATUS "Detected RISC-V based processor")
 else ()
     message(FATAL_ERROR "Unsupported architecture '${CMAKE_SYSTEM_PROCESSOR}'")
 endif ()

@@ -22,7 +22,7 @@
 
 namespace erebos::platform {
     namespace {
-        auto mask_to_action_string(const kstd::i32 mask) noexcept -> std::string {
+        auto mask_to_action_string(const erebos::i32 mask) noexcept -> std::string {
             if(is_flag_set<IN_DELETE_SELF, IN_DELETE, IN_MOVED_FROM>(mask)) {
                 return "delete";
             }
@@ -38,7 +38,7 @@ namespace erebos::platform {
             return fmt::format("unknown ({:X})", mask);
         }
 
-        constexpr auto mask_to_event_type(const kstd::i32 mask) noexcept -> FileEventType {
+        constexpr auto mask_to_event_type(const erebos::i32 mask) noexcept -> FileEventType {
             if(is_flag_set<IN_DELETE_SELF | IN_DELETE, IN_MOVED_FROM>(mask)) {
                 return FileEventType::DELETED;
             }
@@ -87,13 +87,13 @@ namespace erebos::platform {
 
         _file_watcher_thread = std::thread {[&]() {
             while(_is_running) {
-                std::array<kstd::u8, event_buffer_size> buffer {};
+                std::array<erebos::u8, event_buffer_size> buffer {};
                 const auto buffer_size = ::read(_handle, buffer.data(), event_buffer_size);
                 if(buffer_size <= 0) {
                     continue;
                 }
 
-                kstd::u8* current_address = buffer.data();
+                erebos::u8* current_address = buffer.data();
                 while(current_address < buffer.data() + buffer_size) {
                     const auto* event = reinterpret_cast<const inotify_event*>(current_address);
                     current_address += sizeof(inotify_event) + event->len;
@@ -104,7 +104,7 @@ namespace erebos::platform {
                     const auto flags = event->mask;
                     const auto path = _handle_to_path_map[event->wd] / event->name;
                     SPDLOG_TRACE("Received {} file event about '{}'", mask_to_action_string(flags), path.string());
-                    if(are_flags_set<kstd::u32, IN_MOVED_FROM>(flags)) {
+                    if(are_flags_set<erebos::u32, IN_MOVED_FROM>(flags)) {
                         ::inotify_rm_watch(_handle, event->wd);
                         _handle_to_path_map.erase(event->wd);
                     }
@@ -115,7 +115,7 @@ namespace erebos::platform {
                         _event_queue.push_back(FileEvent {mask_to_event_type(event->mask), path});
                     }
 
-                    if(are_flags_set<kstd::u32, IN_CREATE, IN_MOVED_TO>(flags)) {
+                    if(are_flags_set<erebos::u32, IN_CREATE, IN_MOVED_TO>(flags)) {
                         const auto watch_fd = ::inotify_add_watch(_handle, path.c_str(), watch_mask);
                         if(watch_fd == invalid_file_watcher_handle) {
                             SPDLOG_ERROR("Unable to add path '{}' of path: {}", path.c_str(), get_last_error());
@@ -124,7 +124,7 @@ namespace erebos::platform {
                         _handle_to_path_map[watch_fd] = path;
                     }
 
-                    if(are_flags_set<kstd::u32, IN_DELETE, IN_DELETE_SELF>(flags)) {
+                    if(are_flags_set<erebos::u32, IN_DELETE, IN_DELETE_SELF>(flags)) {
                         ::inotify_rm_watch(_handle, event->wd);
                         _handle_to_path_map.erase(event->wd);
                     }

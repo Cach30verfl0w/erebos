@@ -3,7 +3,7 @@ project(runtime)
 
 file(GLOB_RECURSE RUNTIME_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/src/*.c*")
 
-option(EREBOS_RUNTIME_COMPILE_TESTS "Compile Tests of Erebos Runtime" ON)
+option(EREBOS_RUNTIME_BUILD_TESTS "Compile Tests of Erebos Runtime" ON)
 
 # RPS
 FetchContent_Declare(
@@ -17,41 +17,15 @@ set(RpsBuildTests OFF)
 set(RpsEnableImGui OFF)
 FetchContent_MakeAvailable(rps)
 
-# Configure platform-specific folders
-set(RPS_HLSLC_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/_deps/rps-src/tools/rps_hlslc")
-if (PLATFORM_WINDOWS)
-    set(RPS_TARGET_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/tools/rps_hlslc/win-x64")
-    file(MAKE_DIRECTORY "${RPS_TARGET_FOLDER}")
-
-    configure_file("${RPS_HLSLC_FOLDER}/win-x64/dxcompiler.dll" "${RPS_TARGET_FOLDER}/dxcompiler.dll" COPYONLY)
-    configure_file("${RPS_HLSLC_FOLDER}/win-x64/dxil.dll" "${RPS_TARGET_FOLDER}/dxil.dll" COPYONLY)
-    configure_file("${RPS_HLSLC_FOLDER}/win-x64/rps-jit.dll" "${RPS_TARGET_FOLDER}/rps-jit.dll" COPYONLY)
-    configure_file("${RPS_HLSLC_FOLDER}/win-x64/llvm-cbe.exe" "${RPS_TARGET_FOLDER}/llvm-cbe.exe" COPYONLY)
-    configure_file("${RPS_HLSLC_FOLDER}/win-x64/rps-hlslc.exe" "${RPS_TARGET_FOLDER}/rps-hlslc.exe" COPYONLY)
-elseif (PLATFORM_LINUX)
-    set(RPS_LIB_TARGET_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/tools/rps_hlslc/linux-x64/lib")
-    set(RPS_BIN_TARGET_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/tools/rps_hlslc/linux-x64/bin")
-    file(MAKE_DIRECTORY "${RPS_LIB_TARGET_FOLDER}")
-    file(MAKE_DIRECTORY "${RPS_BIN_TARGET_FOLDER}")
-
-    configure_file("${RPS_HLSLC_FOLDER}/linux-x64/lib/libdxcompiler.so" "${RPS_LIB_TARGET_FOLDER}/libdxcompiler.so" COPYONLY)
-    configure_file("${RPS_HLSLC_FOLDER}/linux-x64/lib/libdxil.so" "${RPS_LIB_TARGET_FOLDER}/libdxil.so" COPYONLY)
-    configure_file("${RPS_HLSLC_FOLDER}/linux-x64/bin/llvm-cbe" "${RPS_BIN_TARGET_FOLDER}/llvm-cbe" COPYONLY)
-    configure_file("${RPS_HLSLC_FOLDER}/linux-x64/bin/rps-hlslc" "${RPS_BIN_TARGET_FOLDER}/rps-hlslc" COPYONLY)
-else ()
-    message(FATAL_ERROR "No support for this platform")
-endif ()
-
-# RPSL
-set(RpsOsLinux ON)
-set(GENERATED_SOURCES "")
-CompileRpslDxc(erebos "${CMAKE_CURRENT_SOURCE_DIR}/runtime/src/runtime.rpsl" GENERATED_SOURCES "generated")
+# Compile RPSL files
+include(render-pipeline-shaders)
+compile_rpsl(erebos "${CMAKE_CURRENT_SOURCE_DIR}/runtime/src/runtime.rpsl" erebos_RPSL_OUTPUT_FILE)
 
 # Configure libraries
 message("Configure liberebos")
-add_library(erebos SHARED ${RUNTIME_SOURCE_FILES} ${GENERATED_SOURCES})
+add_library(erebos SHARED ${RUNTIME_SOURCE_FILES} ${erebos_RPSL_OUTPUT_FILE})
 target_include_directories(erebos PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/runtime/include")
-add_library(erebos-static STATIC ${RUNTIME_SOURCE_FILES} ${GENERATED_SOURCES})
+add_library(erebos-static STATIC ${RUNTIME_SOURCE_FILES} ${erebos_RPSL_OUTPUT_FILE})
 target_include_directories(erebos-static PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/runtime/include")
 
 # Add SDL2
@@ -105,18 +79,6 @@ target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/spdlog-src/i
 target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
 add_compile_definitions(SPDLOG_HEADER_ONLY SPDLOG_FMT_EXTERNAL)
 
-# Add kstd-core
-FetchContent_Declare(
-        kstd-core
-        GIT_REPOSITORY https://github.com/karmakrafts/kstd-core.git
-        GIT_TAG master
-        GIT_PROGRESS true
-)
-FetchContent_Populate(kstd-core)
-
-target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/kstd-core-src/include")
-target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/kstd-core-src/include")
-
 # Add volk
 FetchContent_Declare(
         volk
@@ -159,7 +121,7 @@ enable_testing(TRUE)
 include(GoogleTest)
 
 # Add tests
-if (EREBOS_RUNTIME_COMPILE_TESTS)
+if (EREBOS_RUNTIME_BUILD_TESTS)
     file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/tests/*.c*")
     add_executable(erebos-tests ${TEST_SOURCES})
     gtest_discover_tests(erebos-tests)

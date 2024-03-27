@@ -91,7 +91,7 @@ namespace erebos::platform {
      * @author        Cedric Hammes
      * @since         16/03/2024
      */
-    FileMapping::FileMapping(kstd::u8* file_ptr, kstd::usize size) noexcept
+    FileMapping::FileMapping(erebos::u8* file_ptr, erebos::usize size) noexcept
         ://NOLINT
         _pointer {file_ptr}
         , _size {size} {
@@ -157,10 +157,10 @@ namespace erebos::platform {
         }
     }
 
-    auto File::map_into_memory() const noexcept -> kstd::Result<FileMapping> {
+    auto File::map_into_memory() const noexcept -> erebos::Result<FileMapping> {
         const auto file_size = get_file_size();
-        if(file_size.is_error()) {
-            return kstd::Error {file_size.get_error()};
+        if(!file_size) {
+            return erebos::Error {file_size.get_error()};
         }
 
         // Generate flags for memory mapping
@@ -180,16 +180,16 @@ namespace erebos::platform {
         // Pointer to mapped memory section
         auto* ptr = MMAP(nullptr, *file_size, flags, MAP_SHARED, _handle, 0);
         if(ptr == MAP_FAILED) {
-            return kstd::Error {fmt::format("Unable to map file {} into memory: {}", _path.string(), get_last_error())};
+            return erebos::Error {fmt::format("Unable to map file {} into memory: {}", _path.string(), get_last_error())};
         }
 
-        return {{static_cast<kstd::u8*>(ptr), *file_size}};
+        return {{static_cast<erebos::u8*>(ptr), *file_size}};
     }
 
-    auto File::get_file_size() const noexcept -> kstd::Result<kstd::usize> {
+    auto File::get_file_size() const noexcept -> erebos::Result<erebos::usize> {
         const auto temp_file_handle = ::fdopen(_handle, "r");
         if(temp_file_handle == nullptr) {
-            return kstd::Error {fmt::format("Unable to acquire size of file: {}", platform::get_last_error())};
+            return erebos::Error(fmt::format("Unable to acquire size of file: {}", platform::get_last_error()));
         }
 
         fseek(temp_file_handle, EOF, SEEK_END);

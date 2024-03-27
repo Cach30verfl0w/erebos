@@ -20,9 +20,8 @@
 
 #pragma once
 #include "erebos/platform/platform.hpp"
-#include <kstd/defaults.hpp>
-#include <kstd/result.hpp>
-#include <kstd/utils.hpp>
+#include "erebos/result.hpp"
+#include "erebos/utils.hpp"
 #include <stdexcept>
 
 namespace erebos::platform {
@@ -30,7 +29,7 @@ namespace erebos::platform {
         std::string _name;
         ModuleHandle _handle;
 
-        public:
+    public:
         LibraryLoader()
             ://NOLINT
             _name {}
@@ -48,7 +47,7 @@ namespace erebos::platform {
         explicit LibraryLoader(std::string name);
         LibraryLoader(LibraryLoader&& other) noexcept;
         ~LibraryLoader() noexcept;
-        KSTD_NO_COPY(LibraryLoader, LibraryLoader);
+        EREBOS_DELETE_COPY(LibraryLoader);
 
         /**
          * This function acquires the address of the specified function (by name) and casts that address into the
@@ -62,7 +61,7 @@ namespace erebos::platform {
          * @since  06/05/2023
          */
         template<typename R, typename... ARGS>
-        [[nodiscard]] inline auto get_function(const std::string& name) noexcept -> kstd::Result<R (*)(ARGS...)> {
+        [[nodiscard]] inline auto get_function(const std::string& name) noexcept -> erebos::Result<R (*)(ARGS...)> {
             auto address_result = get_function_address(name);
 
             if(!address_result) {
@@ -86,7 +85,7 @@ namespace erebos::platform {
 
         auto operator=(LibraryLoader&& other) noexcept -> LibraryLoader&;
 
-        private:
-        [[nodiscard]] auto get_function_address(const std::string& name) noexcept -> kstd::Result<void*>;
+    private:
+        [[nodiscard]] auto get_function_address(const std::string& name) noexcept -> erebos::Result<void*>;
     };
 }// namespace erebos::platform

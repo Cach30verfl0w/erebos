@@ -22,19 +22,17 @@
 #include "erebos/platform/platform.hpp"
 #include "erebos/utils.hpp"
 #include <filesystem>
-#include <kstd/bitflags.hpp>
-#include <kstd/types.hpp>
 #include <queue>
 #include <spdlog/spdlog.h>
 #include <unordered_map>
 
 #ifndef PLATFORM_WINDOWS
-#include <signal.h>
+#include <csignal>
 #include <sys/inotify.h>
 #endif
 
 namespace erebos::platform {
-    enum FileEventType : kstd::u8 { CREATED, DELETED, WRITTEN, UNKNOWN };
+    enum FileEventType : erebos::u8 { CREATED, DELETED, WRITTEN, UNKNOWN };
 
     struct FileEvent final {
         FileEventType type;
@@ -45,13 +43,13 @@ namespace erebos::platform {
         FileWatcherHandle _handle;
         std::filesystem::path _base_path;
         std::thread _file_watcher_thread;
-        kstd::atomic_bool _is_running;
+        erebos::atomic_bool _is_running;
         std::mutex _event_queue_mutex;
         std::deque<FileEvent> _event_queue;
 
 #ifdef PLATFORM_WINDOWS
         ::OVERLAPPED _overlapped;
-        std::array<kstd::u8, 32 * 1024> _event_buffer;
+        std::array<erebos::u8, 32 * 1024> _event_buffer;
 #else
         std::unordered_map<FileHandle, std::filesystem::path> _handle_to_path_map;
 #endif
@@ -60,15 +58,15 @@ namespace erebos::platform {
         explicit FileWatcher(std::filesystem::path base_path);
         FileWatcher(FileWatcher&& other) noexcept;
         ~FileWatcher() noexcept;
-        KSTD_NO_COPY(FileWatcher, FileWatcher);
+        EREBOS_DELETE_COPY(FileWatcher);
 
         template<typename F>
-        auto handle_event_queue(F&& callback_function) noexcept -> kstd::Result<void> {
-            static_assert(std::is_convertible_v<F, std::function<kstd::Result<void>(const FileEvent&)>>, "Invalid callback function");
+        auto handle_event_queue(F&& callback_function) noexcept -> erebos::Result<void> {
+            static_assert(std::is_convertible_v<F, std::function<erebos::Result<void>(const FileEvent&)>>, "Invalid callback function");
             const auto guard = std::lock_guard {_event_queue_mutex};
             while(!_event_queue.empty()) {
                 if(const auto result = callback_function(std::move(_event_queue.front())); !result) {
-                    return kstd::Error {result.get_error()};
+                    return erebos::Error {result.get_error()};
                 }
                 _event_queue.pop_back();
             }

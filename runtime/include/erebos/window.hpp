@@ -18,10 +18,10 @@
  */
 
 #pragma once
+#include "erebos/result.hpp"
+#include "erebos/utils.hpp"
 #include <SDL2/SDL.h>
 #include <fmt/format.h>
-#include <kstd/defaults.hpp>
-#include <kstd/result.hpp>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <string>
@@ -31,15 +31,15 @@
 #endif
 
 namespace erebos {
-    using EventCallbackFunction = std::function<kstd::Result<void>(SDL_Event& event, void* data)>;
-    using RenderCallbackFunction = std::function<kstd::Result<void>(void* data)>;
+    using EventCallbackFunction = std::function<erebos::Result<void>(SDL_Event& event, void* data)>;
+    using RenderCallbackFunction = std::function<erebos::Result<void>(void* data)>;
 
     class Window final {
         SDL_Window* _window_handle;
         std::vector<std::pair<EventCallbackFunction, void*>> _event_callback_list;
         std::vector<std::pair<RenderCallbackFunction, void*>> _render_callback_list;
 
-        public:
+    public:
         /**
          * This constructor initializes SDL and creates the window with the specified title and the initial
          * bounds.
@@ -52,7 +52,7 @@ namespace erebos {
          */
         explicit Window(std::string_view title, uint32_t initial_width = 800, uint32_t initial_height = 600);
         Window(Window&& other) noexcept;
-        KSTD_NO_COPY(Window, Window);
+        EREBOS_DELETE_COPY(Window);
 
         /**
          * This destructor destroys the handle of the window and quits
@@ -79,7 +79,7 @@ namespace erebos {
          * @author Cedric Hammes
          * @since  14/03/2024
          */
-        [[nodiscard]] auto run_loop() const noexcept -> kstd::Result<void>;
+        [[nodiscard]] auto run_loop() const noexcept -> erebos::Result<void>;
 
         /**
          * This method returns the raw handle to the internal usd SDL

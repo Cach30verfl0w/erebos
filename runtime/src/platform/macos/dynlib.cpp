@@ -50,10 +50,10 @@ namespace erebos::platform {
         return *this;
     }
 
-    auto LibraryLoader::get_function_address(const std::string& name) noexcept -> kstd::Result<void*> {
+    auto LibraryLoader::get_function_address(const std::string& name) noexcept -> erebos::Result<void*> {
         auto* address = ::dlsym(_handle, name.data());
         if(address == nullptr) {
-            return kstd::Error {fmt::format("Could not resolve function {} in {}: {}", name, _name, get_last_error())};
+            return erebos::Error {fmt::format("Could not resolve function {} in {}: {}", name, _name, get_last_error())};
         }
 
         return reinterpret_cast<void*>(address);

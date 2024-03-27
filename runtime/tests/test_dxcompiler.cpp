@@ -31,7 +31,6 @@ TEST(erebos_render_DXCompiler, test_compile) {
         }
     )";
 
-    const auto compiler = kstd::try_construct<erebos::render::DXCompiler>(file_path);
-    compiler.throw_if_error();
+    auto compiler = erebos::try_construct<erebos::render::DXCompiler>(file_path);
     ASSERT_TRUE(compiler->compile({code.cbegin(), code.cend()}, VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT));
 }

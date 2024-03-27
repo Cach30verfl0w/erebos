@@ -18,25 +18,18 @@
  */
 
 #include <cxxopts.hpp>
-#include <erebos/render/renderer.hpp>
-#include <erebos/vulkan/context.hpp>
-#include <erebos/vulkan/device.hpp>
+#include <erebos/render/vulkan/context.hpp>
+#include <erebos/render/vulkan/device.hpp>
 #include <erebos/window.hpp>
-#include <kstd/safe_alloc.hpp>
 #include <spdlog/spdlog.h>
-
-auto render(void* renderer_pointer) -> kstd::Result<void> {
-    auto renderer = static_cast<erebos::render::Renderer*>(renderer_pointer);
-    if (const auto error = renderer->render(); !error) {
-        return kstd::Error {error.get_error()};
-    }
-    return {};
-}
+#include <erebos/result.hpp>
 
 auto main(int argc, char* argv[]) -> int {
     cxxopts::Options options {"aetherium-editor"};
     options.add_option("general", cxxopts::Option {"h,help", "Get help", cxxopts::value<bool>()});
     options.add_option("general", cxxopts::Option {"v,verbose", "Enable verbose logging", cxxopts::value<bool>()});
+
+    const auto result = erebos::Result<uint32_t> {1};
 
     const auto parse_result = options.parse(argc, argv);
     spdlog::set_level(parse_result.count("verbose") ? spdlog::level::trace : spdlog::level::info);
@@ -50,33 +43,35 @@ auto main(int argc, char* argv[]) -> int {
     }
 
     // Create window, vulkan context and device
-    auto window = kstd::try_construct<erebos::Window>("Aetherium Editor");
+    auto window = erebos::try_construct<erebos::Window>("Aetherium Editor");
     if(!window) {
         SPDLOG_ERROR("{}", window.get_error());
         return -1;
     }
 
-    const auto vulkan_context = kstd::try_construct<erebos::vulkan::VulkanContext>(*window);
+    const auto vulkan_context = erebos::try_construct<erebos::render::vulkan::VulkanContext>(*window);
     if(!vulkan_context) {
         SPDLOG_ERROR("{}", vulkan_context.get_error());
         return -1;
     }
 
-    auto device = erebos::vulkan::find_device(*vulkan_context);
+    uint32_t device_count = 0;
+    if(const auto err = vkEnumeratePhysicalDevices(**vulkan_context, &device_count, nullptr); err != VK_SUCCESS) {
+        SPDLOG_ERROR("Unable to get physical devices: {}", static_cast<uint32_t>(err));
+    }
+    std::vector<VkPhysicalDevice> devices {device_count};
+    if(const auto err = vkEnumeratePhysicalDevices(**vulkan_context, &device_count, devices.data()); err != VK_SUCCESS) {
+        SPDLOG_ERROR("Unable to get physical devices: {}", static_cast<uint32_t>(err));
+    }
+
+    auto device = erebos::try_construct<erebos::render::vulkan::Device>(*vulkan_context, devices[0]);
     if(!device) {
         SPDLOG_ERROR("{}", device.get_error());
         return -1;
     }
 
-    auto renderer = kstd::try_construct<erebos::render::Renderer>(*vulkan_context, *device);
-    if (!renderer) {
-        SPDLOG_ERROR("{}", renderer.get_error());
-        return -1;
-    }
-
     SPDLOG_INFO("Entering window event loop");
-    window->add_render_callback(render, &*renderer);
-    if(const auto result = window->run_loop(); result.is_error()) {
+    if(const auto result = window->run_loop(); !result) {
         SPDLOG_ERROR("{}", result.get_error());
         return -1;
     }

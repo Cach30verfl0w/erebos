@@ -58,7 +58,7 @@ namespace erebos::platform {
      * @author        Cedric Hammes
      * @since         16/03/2024
      */
-    FileMapping::FileMapping(kstd::u8* file_ptr, HANDLE memory_map_handle, kstd::usize size) noexcept
+    FileMapping::FileMapping(erebos::u8* file_ptr, HANDLE memory_map_handle, erebos::usize size) noexcept
         : _pointer {file_ptr}
         , _size {size}
         , _memory_map_handle {memory_map_handle} {
@@ -108,7 +108,7 @@ namespace erebos::platform {
             }
         }
 
-        _handle = ::CreateFileW(kstd::utils::to_wcs(path.string()).data(),
+        _handle = ::CreateFileW(erebos::utils::to_wcs(path.string()).data(),
                                 to_access(access_mode),
                                 0,
                                 nullptr,
@@ -134,10 +134,10 @@ namespace erebos::platform {
         }
     }
 
-    auto File::map_into_memory() const noexcept -> kstd::Result<FileMapping> {
+    auto File::map_into_memory() const noexcept -> erebos::Result<FileMapping> {
         const auto file_size = get_file_size();
         if(file_size.is_error()) {
-            return kstd::Error {file_size.get_error()};
+            return erebos::Error {file_size.get_error()};
         }
 
         int flags;
@@ -158,13 +158,13 @@ namespace erebos::platform {
         }
         else {
             using namespace std::string_literals;
-            return kstd::Error {"Unable to map the file into the memory: Illegal flags"s};
+            return erebos::Error {"Unable to map the file into the memory: Illegal flags"s};
         }
 
         // Create file mapping
         const auto file_mapping_handle = ::CreateFileMapping(_handle, nullptr, flags, 0, 0, nullptr);
         if(file_mapping_handle == nullptr) {
-            return kstd::Error {fmt::format("Unable to map the file into the memory: {}", platform::get_last_error())};
+            return erebos::Error {fmt::format("Unable to map the file into the memory: {}", platform::get_last_error())};
         }
 
         // Create desired access
@@ -186,18 +186,18 @@ namespace erebos::platform {
         const auto base_ptr = ::MapViewOfFile(file_mapping_handle, desired_access, 0, 0, 0);
         if(base_ptr == nullptr) {
             CloseHandle(file_mapping_handle);
-            return kstd::Error {fmt::format("{}", platform::get_last_error())};
+            return erebos::Error {fmt::format("{}", platform::get_last_error())};
         }
 
-        return {{static_cast<kstd::u8*>(base_ptr), file_mapping_handle, *file_size}};
+        return {{static_cast<erebos::u8*>(base_ptr), file_mapping_handle, *file_size}};
     }
 
-    auto File::get_file_size() const noexcept -> kstd::Result<kstd::usize> {
+    auto File::get_file_size() const noexcept -> erebos::Result<erebos::usize> {
         LARGE_INTEGER file_size {};
         if(!::GetFileSizeEx(_handle, &file_size)) {
-            return kstd::Error {fmt::format("Unable to acquire size of file: {}", platform::get_last_error())};
+            return erebos::Error {fmt::format("Unable to acquire size of file: {}", platform::get_last_error())};
         }
-        return static_cast<kstd::usize>(file_size.QuadPart);
+        return static_cast<erebos::usize>(file_size.QuadPart);
     }
 
     auto File::operator=(File&& other) noexcept -> File& {

@@ -21,8 +21,6 @@
 #include "erebos/platform/dynlib.hpp"
 #include "erebos/utils.hpp"
 #include <filesystem>
-#include <kstd/option.hpp>
-#include <kstd/safe_alloc.hpp>
 #include <spdlog/spdlog.h>
 #include <volk.h>
 
@@ -58,7 +56,7 @@ namespace erebos::render {
 
         public:
         explicit DXCompiler(const std::filesystem::path& path);
-        [[nodiscard]] auto compile(const std::vector<kstd::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
-            -> kstd::Result<std::vector<uint32_t>>;
+        [[nodiscard]] auto compile(const std::vector<erebos::u8>& code, VkShaderStageFlagBits shader_stage) const noexcept
+            -> erebos::Result<std::vector<uint32_t>>;
     };
 }// namespace erebos::render
