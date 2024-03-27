@@ -24,7 +24,7 @@
 namespace erebos::platform {
     LibraryLoader::LibraryLoader(std::string name)
         : _name {std::move(name)} {
-        _handle = ::LoadLibraryW(erebos::utils::to_wcs(_name).data());
+        _handle = ::LoadLibraryW(erebos::unicode::to_wcs(_name).data());
         if(_handle == invalid_module_handle) {
             throw std::runtime_error {fmt::format("Unable to open library '{}': {}", _name, get_last_error())};
         }

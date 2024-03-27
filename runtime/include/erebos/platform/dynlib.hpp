@@ -20,6 +20,7 @@
 
 #pragma once
 #include "erebos/platform/platform.hpp"
+#include "erebos/unicode.hpp"
 #include "erebos/result.hpp"
 #include "erebos/utils.hpp"
 #include <stdexcept>
