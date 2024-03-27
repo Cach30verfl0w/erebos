@@ -108,7 +108,7 @@ namespace erebos::platform {
             }
         }
 
-        _handle = ::CreateFileW(erebos::utils::to_wcs(path.string()).data(),
+        _handle = ::CreateFileW(erebos::unicode::to_wcs(path.string()).data(),
                                 to_access(access_mode),
                                 0,
                                 nullptr,

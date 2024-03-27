@@ -130,6 +130,8 @@ namespace erebos::platform {
         :// NOLINT
         _path {std::move(path)}
         , _access {access_mode} {
+        std::string e {};
+        e.begin();
         const auto exists = std::filesystem::exists(_path);
         if(!exists && _path.has_parent_path()) {
             if(const auto parent_path = _path.parent_path(); std::filesystem::exists(parent_path)) {
