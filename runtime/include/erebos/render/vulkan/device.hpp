@@ -106,5 +106,14 @@ namespace erebos::render::vulkan {
         }
     };
 
+    /**
+     * This function enumerates all devices that are available on the system and returns the device with the largest local heap, based on
+     * the premise that this is also the "fastest" device.
+     *
+     * @param context The Vulkan API context
+     * @return        The device with the biggest local heap
+     * @author        Cedric Hammes
+     * @since         28/03/2024
+     */
     [[nodiscard]] auto find_preferred_device(const VulkanContext& context) noexcept -> std::optional<Device>;
 }// namespace erebos::render::vulkan

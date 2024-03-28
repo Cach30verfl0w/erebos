@@ -92,12 +92,14 @@ namespace erebos::render::vulkan {
         }
 
         [[nodiscard]] auto get_device_local_heap(VkPhysicalDevice device_handle) noexcept -> uint64_t {
+            // Filter CPU type out (llvmpipe)
             VkPhysicalDeviceProperties properties {};
             vkGetPhysicalDeviceProperties(device_handle, &properties);
             if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU) {
                 return 0;
             }
 
+            // Sum the device local heap into one number
             VkPhysicalDeviceMemoryProperties memory_properties {};
             vkGetPhysicalDeviceMemoryProperties(device_handle, &memory_properties);
             uint64_t local_heap_size = 0;
