@@ -90,8 +90,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
     # Enable safe STL, disable inlining and optimizations
     if (PLATFORM_LINUX AND COMPILER_GCC)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -O0 -fno-inline -D_GLIBCXX_DEBUG_BACKTRACE")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O0 -fno-inline -D_GLIBCXX_DEBUG_BACKTRACE")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -gdwarf -O0 -fno-inline -D_GLIBCXX_DEBUG_BACKTRACE")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -gdwarf -O0 -fno-inline -D_GLIBCXX_DEBUG_BACKTRACE")
     endif ()
 
     # Enable checked iterators

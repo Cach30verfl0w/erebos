@@ -90,8 +90,38 @@ namespace erebos::render::vulkan {
         auto rps_vprintf([[maybe_unused]] void* user_context, const char* format, va_list args) noexcept -> void {
             ::vprintf(format, args);
         }
+
+        [[nodiscard]] auto get_device_local_heap(VkPhysicalDevice device_handle) noexcept -> uint64_t {
+            VkPhysicalDeviceProperties properties {};
+            vkGetPhysicalDeviceProperties(device_handle, &properties);
+            if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU) {
+                return 0;
+            }
+
+            VkPhysicalDeviceMemoryProperties memory_properties {};
+            vkGetPhysicalDeviceMemoryProperties(device_handle, &memory_properties);
+            uint64_t local_heap_size = 0;
+            for (uint32_t i = 0; i < memory_properties.memoryHeapCount; i++) {
+                const auto heap = memory_properties.memoryHeaps[i];
+                if (!is_flag_set<VK_MEMORY_HEAP_DEVICE_LOCAL_BIT>(heap.flags)) {
+                    continue;
+                }
+
+                local_heap_size += heap.size;
+            }
+            return local_heap_size;
+        }
     }// namespace
 
+    /**
+     * This constructor creates a virtual device handle by the specified physical device handle. It also creates the Vulkan memory
+     * allocator and the RPS (RenderPipelineShaders) device gets initialized.
+     *
+     * @param vulkan_context  The context of the vulkan API
+     * @param physical_device The handle of the physical device
+     * @author                Cedric Hammes
+     * @since                 26/03/2024
+     */
     Device::Device(const VulkanContext& vulkan_context, VkPhysicalDevice physical_device)
         : _context(&vulkan_context)
         , _physical_device(physical_device)
@@ -340,5 +370,20 @@ namespace erebos::render::vulkan {
         _rps_device = nullptr;
         _allocator = nullptr;
         return *this;
+    }
+
+    auto find_preferred_device(const VulkanContext& context) noexcept -> std::optional<Device> {
+        uint32_t available_devices = 0;
+        vkEnumeratePhysicalDevices(*context, &available_devices, nullptr);
+        std::vector<VkPhysicalDevice> devices {available_devices};
+        vkEnumeratePhysicalDevices(*context, &available_devices, devices.data());
+        if (devices.empty()) {
+            return {};
+        }
+
+        std::sort(devices.begin(), devices.end(), [](auto& first, auto& second) noexcept -> bool {
+            return get_device_local_heap(first) > get_device_local_heap(second);
+        });
+        return Device(context, devices[0]);
     }
 }// namespace erebos::render::vulkan

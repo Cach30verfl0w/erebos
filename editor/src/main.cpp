@@ -29,7 +29,7 @@ auto main(int argc, char* argv[]) -> int {
     options.add_option("general", cxxopts::Option {"h,help", "Get help", cxxopts::value<bool>()});
     options.add_option("general", cxxopts::Option {"v,verbose", "Enable verbose logging", cxxopts::value<bool>()});
 
-    const auto result = erebos::Result<uint32_t> {1};
+    erebos::Result<uint32_t> {1};
 
     const auto parse_result = options.parse(argc, argv);
     spdlog::set_level(parse_result.count("verbose") ? spdlog::level::trace : spdlog::level::info);
@@ -55,18 +55,9 @@ auto main(int argc, char* argv[]) -> int {
         return -1;
     }
 
-    uint32_t device_count = 0;
-    if(const auto err = vkEnumeratePhysicalDevices(**vulkan_context, &device_count, nullptr); err != VK_SUCCESS) {
-        SPDLOG_ERROR("Unable to get physical devices: {}", static_cast<uint32_t>(err));
-    }
-    std::vector<VkPhysicalDevice> devices {device_count};
-    if(const auto err = vkEnumeratePhysicalDevices(**vulkan_context, &device_count, devices.data()); err != VK_SUCCESS) {
-        SPDLOG_ERROR("Unable to get physical devices: {}", static_cast<uint32_t>(err));
-    }
-
-    auto device = erebos::try_construct<erebos::render::vulkan::Device>(*vulkan_context, devices[0]);
-    if(!device) {
-        SPDLOG_ERROR("{}", device.get_error());
+    const auto device = erebos::render::vulkan::find_preferred_device(*vulkan_context);
+    if (!device) {
+        SPDLOG_ERROR("No device found");
         return -1;
     }
 

@@ -105,4 +105,6 @@ namespace erebos::render::vulkan {
             return _device_handle;
         }
     };
+
+    [[nodiscard]] auto find_preferred_device(const VulkanContext& context) noexcept -> std::optional<Device>;
 }// namespace erebos::render::vulkan
