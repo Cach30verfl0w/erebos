@@ -50,6 +50,20 @@ namespace erebos::render::vulkan {
         EREBOS_DELETE_COPY(Device);
         auto operator=(Device&& other) noexcept -> Device&;
 
+        [[nodiscard]] auto find_preferred_surface_format() const noexcept -> Result<std::optional<VkSurfaceFormatKHR>>;
+
+        /**
+         * This function returns the Vulkan context that was used to create this
+         * device.
+         *
+         * @return The vulkan context
+         * @author Cedric Hammes
+         * @since  28/03/2024
+         */
+        [[nodiscard]] inline auto get_vulkan_context() const noexcept -> const VulkanContext* {
+            return _context;
+        }
+
         /**
          * This function returns the list of the allocated queues
          *

@@ -40,12 +40,32 @@ namespace erebos::render::vulkan {
         EREBOS_DELETE_COPY(VulkanContext);
         auto operator=(VulkanContext&& other) noexcept -> VulkanContext&;
 
+        /**
+         * This function returns the currently available Vulkan API version. This is used for the initialization
+         * of some components.
+         *
+         * @return The Vulkan API version
+         * @author Cedric Hammes
+         * @since  28/03/2024
+         */
         [[nodiscard]] inline auto get_api_version() const noexcept -> uint32_t {
             return _api_version;
         }
 
+        /**
+         * This function returns a non-mutable pointer to the window, that was used to create this Vulkan API
+         * context.
+         *
+         * @return The window
+         * @author Cedric Hammes
+         * @since  28/03/2024
+         */
         [[nodiscard]] inline auto get_window() const noexcept -> const Window* {
             return _window;
+        }
+
+        [[nodiscard]] inline auto get_surface() const noexcept -> VkSurfaceKHR {
+            return _surface_handle;
         }
 
         [[nodiscard]] inline auto operator*() const noexcept -> VkInstance {

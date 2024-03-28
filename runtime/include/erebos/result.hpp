@@ -120,7 +120,7 @@ namespace erebos {
 
         [[nodiscard]] inline auto operator->() const noexcept -> const_pointer {
             assert(is_ok());
-            return std::get<value_type>(_value_or_error);
+            return &std::get<value_type>(_value_or_error);
         }
 
         [[nodiscard]] inline auto operator->() noexcept -> pointer {

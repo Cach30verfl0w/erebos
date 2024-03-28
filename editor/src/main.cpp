@@ -20,16 +20,14 @@
 #include <cxxopts.hpp>
 #include <erebos/render/vulkan/context.hpp>
 #include <erebos/render/vulkan/device.hpp>
+#include <erebos/result.hpp>
 #include <erebos/window.hpp>
 #include <spdlog/spdlog.h>
-#include <erebos/result.hpp>
 
 auto main(int argc, char* argv[]) -> int {
     cxxopts::Options options {"aetherium-editor"};
     options.add_option("general", cxxopts::Option {"h,help", "Get help", cxxopts::value<bool>()});
     options.add_option("general", cxxopts::Option {"v,verbose", "Enable verbose logging", cxxopts::value<bool>()});
-
-    erebos::Result<uint32_t> {1};
 
     const auto parse_result = options.parse(argc, argv);
     spdlog::set_level(parse_result.count("verbose") ? spdlog::level::trace : spdlog::level::info);
@@ -56,10 +54,17 @@ auto main(int argc, char* argv[]) -> int {
     }
 
     const auto device = erebos::render::vulkan::find_preferred_device(*vulkan_context);
-    if (!device) {
+    if(!device) {
         SPDLOG_ERROR("No device found");
         return -1;
     }
+
+    const auto format = device->find_preferred_surface_format();
+    if (!format) {
+        SPDLOG_ERROR("{}", format.get_error());
+        return -1;
+    }
+    SPDLOG_INFO("Format: {}/{}", static_cast<uint32_t>((*format)->format), static_cast<uint32_t>((*format)->colorSpace));
 
     SPDLOG_INFO("Entering window event loop");
     if(const auto result = window->run_loop(); !result) {

@@ -95,7 +95,7 @@ namespace erebos::render::vulkan {
             // Filter CPU type out (llvmpipe)
             VkPhysicalDeviceProperties properties {};
             vkGetPhysicalDeviceProperties(device_handle, &properties);
-            if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU) {
+            if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU) {
                 return 0;
             }
 
@@ -103,9 +103,9 @@ namespace erebos::render::vulkan {
             VkPhysicalDeviceMemoryProperties memory_properties {};
             vkGetPhysicalDeviceMemoryProperties(device_handle, &memory_properties);
             uint64_t local_heap_size = 0;
-            for (uint32_t i = 0; i < memory_properties.memoryHeapCount; i++) {
+            for(uint32_t i = 0; i < memory_properties.memoryHeapCount; i++) {
                 const auto heap = memory_properties.memoryHeaps[i];
-                if (!is_flag_set<VK_MEMORY_HEAP_DEVICE_LOCAL_BIT>(heap.flags)) {
+                if(!is_flag_set<VK_MEMORY_HEAP_DEVICE_LOCAL_BIT>(heap.flags)) {
                     continue;
                 }
 
@@ -361,6 +361,33 @@ namespace erebos::render::vulkan {
         }
     }
 
+    auto Device::find_preferred_surface_format() const noexcept -> Result<std::optional<VkSurfaceFormatKHR>> {
+        const auto surface = _context->get_surface();
+
+        // Acquire the count of available surface formats
+        uint32_t format_count;
+        if(const auto error = vkGetPhysicalDeviceSurfaceFormatsKHR(_physical_device, surface, &format_count, nullptr);
+           error != VK_SUCCESS) {
+            return Error(fmt::format("Unable to acquire count of surface formats: {}", vk_strerror(error)));
+        }
+
+        // Create empty vector of surface formats and request them
+        std::vector<VkSurfaceFormatKHR> surface_formats {format_count};
+        if(const auto error = vkGetPhysicalDeviceSurfaceFormatsKHR(_physical_device, surface, &format_count, surface_formats.data());
+           error != VK_SUCCESS) {
+            return Error(fmt::format("Unable to acquire raw surface formats: {}", vk_strerror(error)));
+        }
+
+        const auto result = std::find_if(surface_formats.cbegin(), surface_formats.cend(), [](auto surface_format) noexcept -> bool {
+            constexpr std::array<VkFormat, 4> supported_formats {VK_FORMAT_R8G8B8A8_SRGB,
+                                                                 VK_FORMAT_B8G8R8A8_SRGB,
+                                                                 VK_FORMAT_R8G8B8A8_UNORM,
+                                                                 VK_FORMAT_B8G8R8A8_UNORM};
+            return std::find(supported_formats.begin(), supported_formats.end(), surface_format.format) != supported_formats.cend();
+        });
+        return result != surface_formats.cend() ? *result : std::optional<VkSurfaceFormatKHR>();
+    }
+
     auto Device::operator=(Device&& other) noexcept -> Device& {
         _context = other._context;
         _physical_device = other._physical_device;
@@ -379,7 +406,7 @@ namespace erebos::render::vulkan {
         vkEnumeratePhysicalDevices(*context, &available_devices, nullptr);
         std::vector<VkPhysicalDevice> devices {available_devices};
         vkEnumeratePhysicalDevices(*context, &available_devices, devices.data());
-        if (devices.empty()) {
+        if(devices.empty()) {
             return {};
         }
 
