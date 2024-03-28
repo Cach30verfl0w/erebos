@@ -361,6 +361,15 @@ namespace erebos::render::vulkan {
         }
     }
 
+    /**
+     * This function enumerates the available surface formats by the surface of the window in the Vulkan context and this device
+     * itself. If the enumeration of the surface formats fails, this function returns an error. If there is no acceptable format
+     * the option in the Result is empty. This function filters for SRGB und UNORM formats.
+     *
+     * @return The by this engine preferred surface format
+     * @author Cedric Hammes
+     * @since  28/03/2024
+     */
     auto Device::find_preferred_surface_format() const noexcept -> Result<std::optional<VkSurfaceFormatKHR>> {
         const auto surface = _context->get_surface();
 
