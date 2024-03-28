@@ -21,6 +21,13 @@
 #include "erebos/render/vulkan/device.hpp"
 
 namespace erebos::render::vulkan::sync {
+    /**
+     * This class is a safe-wrapper around the Vulkan fence. This class automatically frees the resource and provides
+     * simple functions for waiting and reset the fence itself.
+     *
+     * @author Cedric Hammes
+     * @since  28/03/2024
+     */
     class Fence {
         const Device* _device;
         VkFence _handle;
@@ -35,7 +42,7 @@ namespace erebos::render::vulkan::sync {
          * @author            Cedric Hammes
          * @since             28/03/2024
          */
-        explicit Fence(const Device& device, const bool is_signaled = false)
+        Fence(const Device& device, const bool is_signaled = false)
             : _device(&device)
             , _handle() {
             VkFenceCreateInfo fence_create_info {};
@@ -56,7 +63,8 @@ namespace erebos::render::vulkan::sync {
         EREBOS_DELETE_COPY(Fence);
 
         /**
-         * This function awaits the fence to be signaled as indicator that a task ended etc. If the timeout exceeds this
+         * This function awaits the semaphore to be signaled as indicator that a task ended etc. If the timeout exceeds
+         * this
          * function returns a error.
          *
          * @tparam TRep    The data format to store the timeout
@@ -77,13 +85,6 @@ namespace erebos::render::vulkan::sync {
             return {};
         }
         // clang-format on
-
-        [[nodiscard]] auto reset() const noexcept -> Result<void> {
-            if(const auto error = ::vkResetFences(**_device, 1, &_handle); error != VK_SUCCESS) {
-                return Error(fmt::format("Unable to wait for fence to be signaled: {}", vk_strerror(error)));
-            }
-            return {};
-        }
 
         auto operator=(Fence&& other) noexcept -> Fence& {
             _device = other._device;
