@@ -20,6 +20,7 @@
 #include <cxxopts.hpp>
 #include <erebos/render/vulkan/context.hpp>
 #include <erebos/render/vulkan/device.hpp>
+#include <erebos/render/vulkan/frame.hpp>
 #include <erebos/result.hpp>
 #include <erebos/window.hpp>
 #include <spdlog/spdlog.h>

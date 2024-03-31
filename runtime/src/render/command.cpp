@@ -54,19 +54,19 @@ namespace erebos::render::vulkan {
         }
     }
 
-    auto CommandBuffer::begin(VkCommandBufferUsageFlags usage) const noexcept -> kstd::Result<void> {
+    auto CommandBuffer::begin(VkCommandBufferUsageFlags usage) const noexcept -> Result<void> {
         VkCommandBufferBeginInfo command_buffer_begin_info {};
         command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         command_buffer_begin_info.flags = usage;
         if(const auto err = ::vkBeginCommandBuffer(_command_buffer, &command_buffer_begin_info); err != VK_SUCCESS) {
-            return kstd::Error {fmt::format("Unable to begin command buffer: {}", vk_strerror(err))};
+            return Error {fmt::format("Unable to begin command buffer: {}", vk_strerror(err))};
         }
         return {};
     }
 
-    auto CommandBuffer::end() const noexcept -> kstd::Result<void> {
+    auto CommandBuffer::end() const noexcept -> Result<void> {
         if(const auto err = ::vkEndCommandBuffer(_command_buffer); err != VK_SUCCESS) {
-            return kstd::Error {fmt::format("Unable to begin command buffer: {}", vk_strerror(err))};
+            return Error {fmt::format("Unable to begin command buffer: {}", vk_strerror(err))};
         }
         return {};
     }
@@ -113,7 +113,7 @@ namespace erebos::render::vulkan {
      * @author      Cedric Hammes
      * @since       14/03/2024
      */
-    auto CommandPool::allocate(uint32_t count) const noexcept -> kstd::Result<std::vector<CommandBuffer>> {
+    auto CommandPool::allocate(uint32_t count) const noexcept -> Result<std::vector<CommandBuffer>> {
         VkCommandBufferAllocateInfo allocate_info {};
         allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocate_info.commandBufferCount = count;
@@ -121,7 +121,7 @@ namespace erebos::render::vulkan {
 
         std::vector<VkCommandBuffer> raw_command_buffers {count};
         if(const auto err = ::vkAllocateCommandBuffers(**_device, &allocate_info, raw_command_buffers.data()); err != VK_SUCCESS) {
-            return kstd::Error {fmt::format("Unable to allocate {} command buffer: {}", count, vk_strerror(err))};
+            return Error {fmt::format("Unable to allocate {} command buffer: {}", count, vk_strerror(err))};
         }
 
         std::vector<CommandBuffer> command_buffers {};

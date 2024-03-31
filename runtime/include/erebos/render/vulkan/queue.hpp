@@ -23,14 +23,20 @@
 namespace erebos::render::vulkan {
     class Queue final {
         VkQueue _queue_handle;
+        uint32_t _family_index;
 
     public:
         Queue(VkDevice device, uint32_t queue_family_index, uint32_t queue_index) noexcept
-            : _queue_handle() {
+            : _queue_handle()
+            , _family_index(queue_family_index) {
             ::vkGetDeviceQueue(device, queue_family_index, queue_index, &_queue_handle);
         }
         ~Queue() noexcept = default;
         EREBOS_DEFAULT_MOVE_COPY(Queue);
+
+        [[nodiscard]] inline auto get_family_index() const noexcept -> uint32_t {
+            return _family_index;
+        }
 
         [[nodiscard]] inline auto operator*() const noexcept -> VkQueue {
             return _queue_handle;
