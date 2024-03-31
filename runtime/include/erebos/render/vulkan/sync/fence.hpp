@@ -42,7 +42,7 @@ namespace erebos::render::vulkan::sync {
          * @author            Cedric Hammes
          * @since             28/03/2024
          */
-        Fence(const Device& device, const bool is_signaled = false)
+        explicit Fence(const Device& device, const bool is_signaled = false)
             : _device(&device)
             , _handle() {
             VkFenceCreateInfo fence_create_info {};
@@ -79,7 +79,7 @@ namespace erebos::render::vulkan::sync {
         [[nodiscard]] auto wait(const std::chrono::duration<TRep, TPeriod> timeout = std::chrono::duration<TRep, TPeriod>::max())
             const noexcept -> Result<void> {
             constexpr auto timeout_millis = std::chrono::duration_cast<std::chrono::milliseconds>(timeout).count();
-            if(const auto error = ::vkWaitForFences(**_device, 1, &_handle, true, timeout_millis)) {
+            if(const auto error = ::vkWaitForFences(_device, 1, &_handle, true, timeout_millis)) {
                 return Error(fmt::format("Unable to wait for fence to be signaled: {}", vk_strerror(error)));
             }
             return {};

@@ -87,10 +87,10 @@ namespace erebos {
             if(is_error()) {
                 throw std::runtime_error(std::string(get_error()));
             }
-            return std::get<value_type>(_value_or_error);
+            return std::move(std::get<value_type>(_value_or_error));
         }
 
-        [[nodiscard]] constexpr auto get() const noexcept -> const value_type& {
+        [[nodiscard]] constexpr auto get() const noexcept -> const_reference {
             assert(is_ok());
             return std::get<value_type>(_value_or_error);
         }

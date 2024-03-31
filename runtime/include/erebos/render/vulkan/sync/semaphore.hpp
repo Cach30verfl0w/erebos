@@ -35,7 +35,7 @@ namespace erebos::render::vulkan::sync {
          * @author            Cedric Hammes
          * @since             28/03/2024
          */
-        Semaphore(const Device& device, const bool is_timeline = true)
+        Semaphore(const Device& device, const bool is_timeline = false)
             : _device(&device)
             , _handle() {
             VkSemaphoreCreateInfo semaphore_create_info {};
