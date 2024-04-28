@@ -75,7 +75,7 @@ namespace erebos {
      * @author           Cedric Hammes
      * @since            14/03/2024
      */
-    [[nodiscard]] constexpr auto vk_strerror(const VkResult error_code) noexcept -> std::string {
+    [[nodiscard]] inline auto vk_strerror(const VkResult error_code) noexcept -> std::string {
         switch(error_code) {
             case VK_SUCCESS:
                 return "Success";

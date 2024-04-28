@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.26)
 project(erebos)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;")
@@ -123,14 +123,6 @@ endif () # MOLD_EXECUTABLE AND NOT COMPILER_CLANG
 
 include(FetchContent)
 
-# Fetch DX Compiler
-FetchContent_Declare(
-        dxc
-        GIT_REPOSITORY https://github.com/microsoft/DirectXShaderCompiler.git
-        GIT_TAG main
-)
-FetchContent_Populate(dxc)
-
 # Fetch fmt
 FetchContent_Declare(
         fmt
@@ -147,18 +139,6 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
         GIT_TAG v1.x)
 FetchContent_Populate(spdlog)
-
-# Move files
-if (PLATFORM_WINDOWS)
-    set(EXTERN_DXCOMPILER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/extern/dxcompiler/windows/${ARCH}/dxcompiler.dll")
-    set(EXTERN_DXCOMPILER_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/dxcompiler.dll")
-elseif (PLATFORM_UNIX)
-    set(EXTERN_DXCOMPILER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/extern/dxcompiler/linux/libdxcompiler.so")
-    set(EXTERN_DXCOMPILER_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/libdxcompiler.so")
-else ()
-    message(FATAL_ERROR "Unsupported platform")
-endif ()
-configure_file("${EXTERN_DXCOMPILER_LIBRARY}" "${EXTERN_DXCOMPILER_LIB_FILE}" USE_SOURCE_PERMISSIONS COPYONLY)
 
 # Include projects
 

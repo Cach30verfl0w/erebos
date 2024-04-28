@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.26)
 project(runtime)
 
 file(GLOB_RECURSE RUNTIME_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/runtime/src/*.c*")
@@ -40,10 +40,6 @@ target_link_libraries(erebos PUBLIC SDL2-static)
 add_dependencies(erebos SDL2-static)
 target_link_libraries(erebos-static PUBLIC SDL2-static)
 add_dependencies(erebos-static SDL2-static)
-
-# Add dxc
-target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
-target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/dxc-src/include")
 
 # Add mimalloc
 FetchContent_Declare(
