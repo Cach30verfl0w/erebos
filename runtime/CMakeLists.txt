@@ -75,6 +75,18 @@ target_include_directories(erebos PUBLIC "${CMAKE_BINARY_DIR}/_deps/spdlog-src/i
 target_include_directories(erebos-static PUBLIC "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
 add_compile_definitions(SPDLOG_HEADER_ONLY SPDLOG_FMT_EXTERNAL)
 
+# Add slang
+FetchContent_Declare(
+        slang
+        GIT_REPOSITORY https://github.com/shader-slang/slang.git
+        GIT_TAG master
+        GIT_PROGRESS true
+)
+FetchContent_MakeAvailable(slang)
+
+target_link_libraries(erebos PUBLIC slang)
+target_link_libraries(erebos-static PUBLIC slang)
+
 # Add volk
 FetchContent_Declare(
         volk
